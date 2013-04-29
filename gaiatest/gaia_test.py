@@ -174,6 +174,25 @@ class GaiaData(object):
     def set_volume(self, value):
         self.set_setting('audio.volume.master', value)
 
+    def bt_enable_bluetooth(self):
+        self.marionette.switch_to_frame()
+        return self.marionette.execute_async_script("return GaiaDataLayer.enableBluetooth()")
+
+    def bt_disable_bluetooth(self):
+        self.marionette.switch_to_frame()
+        return self.marionette.execute_async_script("return GaiaDataLayer.disableBluetooth()")
+
+    def bt_pair_bluetooth_device(self, device_name):
+        return self.marionette.execute_async_script('return GaiaDataLayer.pairBluetoothDevice("%s")' % device_name)
+
+    def bt_unpair_all_bluetooth_devices(self):
+        self.marionette.switch_to_frame()
+        self.marionette.execute_async_script('return GaiaDataLayer.unpairAllBluetoothDevices()')
+
+    @property
+    def bt_is_bluetooth_enabled(self):
+        return self.marionette.execute_script("return window.navigator.mozBluetooth.enabled")
+
     @property
     def is_cell_data_enabled(self):
         return self.get_setting('ril.data.enabled')
@@ -298,7 +317,9 @@ class GaiaDevice(object):
 
     @property
     def is_android_build(self):
-        return 'Android' in self.marionette.session_capabilities['platform']
+        if not hasattr(self, '_is_android_build'):
+            self._is_android_build = 'Android' in self.marionette.session_capabilities['platform']
+        return self._is_android_build
 
     @property
     def has_mobile_connection(self):
@@ -331,17 +352,33 @@ class GaiaDevice(object):
         self.start_b2g()
 
     def start_b2g(self):
-        self.manager.shellCheckOutput(['start', 'b2g'])
+        if self.marionette.instance:
+            # launch the gecko instance attached to marionette
+            self.marionette.instance.start()
+        elif self.is_android_build:
+            self.manager.shellCheckOutput(['start', 'b2g'])
+        else:
+            raise Exception('Unable to start B2G')
         self.marionette.wait_for_port()
         self.marionette.start_session()
-        self.marionette.execute_async_script("""
-window.addEventListener('mozbrowserloadend', function mozbrowserloadend(aEvent) {
-  window.removeEventListener('mozbrowserloadend', mozbrowserloadend);
-  marionetteScriptFinished();
+        if self.is_android_build:
+            self.marionette.set_script_timeout(60000)
+            self.marionette.execute_async_script("""
+window.addEventListener('mozbrowserloadend', function loaded(aEvent) {
+  if (aEvent.target.src.indexOf('ftu') != -1 || aEvent.target.src.indexOf('homescreen') != -1) {
+    window.removeEventListener('mozbrowserloadend', loaded);
+    marionetteScriptFinished();
+  }
 });""")
 
     def stop_b2g(self):
-        self.manager.shellCheckOutput(['stop', 'b2g'])
+        if self.marionette.instance:
+            # close the gecko instance attached to marionette
+            self.marionette.instance.close()
+        elif self.is_android_build:
+            self.manager.shellCheckOutput(['stop', 'b2g'])
+        else:
+            raise Exception('Unable to stop B2G')
         self.marionette.client.close()
         self.marionette.session = None
         self.marionette.window = None
@@ -355,13 +392,22 @@ class GaiaTestCase(MarionetteTestCase):
     # deafult timeout in seconds for the wait_for methods
     _default_timeout = 30
 
+    def __init__(self, *args, **kwargs):
+        self.restart = kwargs.pop('restart', False)
+        MarionetteTestCase.__init__(self, *args, **kwargs)
+
     def setUp(self):
         MarionetteTestCase.setUp(self)
         self.marionette.__class__ = type('Marionette', (Marionette, MarionetteTouchMixin), {})
 
         self.device = GaiaDevice(self.marionette)
-        if self.device.is_android_build:
-            self.device.restart_b2g()
+        if self.restart and (self.device.is_android_build or self.marionette.instance):
+            self.device.stop_b2g()
+            if self.device.is_android_build:
+                # revert device to a clean state
+                self.device.manager.removeDir('/data/local/indexedDB')
+                self.device.manager.removeDir('/data/b2g/mozilla')
+            self.device.start_b2g()
 
         self.marionette.setup_touch()
 

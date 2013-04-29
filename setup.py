@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 import shutil
 
-version = '0.9'
+version = '0.10'
 
 # get documentation from the README
 try:
@@ -12,7 +12,7 @@ except (OSError, IOError):
     description = ''
 
 # dependencies
-deps = ['marionette_client', 'mozdevice']
+deps = ['marionette_client==0.5.25', 'mozdevice']
 
 # copy atoms directory over
 setupdir = os.path.dirname(__file__)
