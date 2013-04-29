@@ -10,6 +10,7 @@ class TestChangeLanguage(GaiaTestCase):
     # Language settings locators
     _settings_header_text_locator = ('css selector', '#root > header > h1')
     _language_settings_locator = ('id', 'menuItem-languageAndRegion')
+    _language_section_locator = ('id', 'languages')
     _select_language_locator = ('css selector', '#languages li:nth-child(2) .fake-select button')
     _back_button_locator = ('css selector', ".current header > a")
 
@@ -29,6 +30,7 @@ class TestChangeLanguage(GaiaTestCase):
         # Select Language
         self.marionette.tap(language_item)
 
+        self.wait_for_element_displayed(*self._language_section_locator)
         self.wait_for_element_displayed(*self._select_language_locator)
 
         select_box = self.marionette.find_element(*self._select_language_locator)

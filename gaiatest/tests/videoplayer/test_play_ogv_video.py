@@ -7,7 +7,7 @@ import time
 from gaiatest import GaiaTestCase
 
 
-class TestVideoPlayer(GaiaTestCase):
+class TestPlayOgvVideo(GaiaTestCase):
 
     # Video list/summary view
     _video_items_locator = ('css selector', 'ul#thumbnails li[data-name]')
@@ -22,13 +22,13 @@ class TestVideoPlayer(GaiaTestCase):
         GaiaTestCase.setUp(self)
 
         # add video to storage
-        self.push_resource('VID_0001.3gp', destination='DCIM/100MZLLA')
+        self.push_resource('VID_0001.ogv', destination='DCIM/100MZLLA')
 
         # launch the Video app
         self.app = self.apps.launch('Video')
         self.wait_for_element_displayed(*self._video_items_locator)
 
-    def test_play_video(self):
+    def test_play_ogv_video(self):
         # https://moztrap.mozilla.org/manage/case/2478/
 
         all_videos = self.marionette.find_elements(*self._video_items_locator)

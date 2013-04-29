@@ -3,19 +3,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from gaiatest import GaiaTestCase
+from gaiatest.apps.fmradio.app import FmRadio
 
 
 class TestFMRadioFindStations(GaiaTestCase):
-
-    _frequency_display_locator = ('id', 'frequency')
-    _next_button_locator = ('id', 'frequency-op-seekup')
-    _prev_button_locator = ('id', 'frequency-op-seekdown')
 
     def setUp(self):
         GaiaTestCase.setUp(self)
 
         # launch the FM Radio app
-        self.app = self.apps.launch('FM Radio')
+        self.fm_radio = FmRadio(self.marionette)
+        self.fm_radio.launch()
 
     def test_find_next_station(self):
         """ Find next station
@@ -30,24 +28,16 @@ class TestFMRadioFindStations(GaiaTestCase):
         self.wait_for_condition(lambda m: self.data_layer.is_fm_radio_enabled)
 
         # save the current frequency
-        current_frequency = float(self.marionette.find_element(*self._frequency_display_locator).text)
-
-        # check the ui value and the system value
-        self.assertEqual(current_frequency, float(self.data_layer.fm_radio_frequency))
+        initial_frequency = self.fm_radio.frequency
 
         # search next station
-        next_button = self.marionette.find_element(*self._next_button_locator)
-        self.marionette.tap(next_button)
-
-        self.wait_for_condition(lambda m: float(m.find_element(*self._frequency_display_locator).text) != current_frequency)
-
-        next_frequency = float(self.marionette.find_element(*self._frequency_display_locator).text)
+        self.fm_radio.tap_next()
 
         # check the ui value and the system value
-        self.assertEqual(next_frequency, float(self.data_layer.fm_radio_frequency))
+        self.assertEqual(self.fm_radio.frequency, float(self.data_layer.fm_radio_frequency))
 
         # check the change of the frequency
-        self.assertNotEqual(current_frequency, next_frequency)
+        self.assertNotEqual(initial_frequency, self.fm_radio.frequency)
 
     def test_find_prev_station(self):
         """ Find previous station
@@ -62,20 +52,16 @@ class TestFMRadioFindStations(GaiaTestCase):
         self.wait_for_condition(lambda m: self.data_layer.is_fm_radio_enabled)
 
         # save the current frequency
-        current_frequency = float(self.marionette.find_element(*self._frequency_display_locator).text)
+        current_frequency = self.fm_radio.frequency
 
         # check the ui value and the system value
         self.assertEqual(current_frequency, float(self.data_layer.fm_radio_frequency))
 
-        # search next station
-        prev_button = self.marionette.find_element(*self._prev_button_locator)
-        self.marionette.tap(prev_button)
-
-        self.wait_for_condition(lambda m: float(m.find_element(*self._frequency_display_locator).text) != current_frequency)
-        prev_frequency = float(self.marionette.find_element(*self._frequency_display_locator).text)
+        # search prev station
+        self.fm_radio.tap_previous()
 
         # check the ui value and the system value
-        self.assertEqual(prev_frequency, float(self.data_layer.fm_radio_frequency))
+        self.assertEqual(self.fm_radio.frequency, float(self.data_layer.fm_radio_frequency))
 
         # check the change of the frequency
-        self.assertNotEqual(current_frequency, prev_frequency)
+        self.assertNotEqual(current_frequency, self.fm_radio.frequency)

@@ -37,7 +37,8 @@ class Keypad(Phone):
         self.phone_number = value
         return self.tap_call_button()
 
-    def tap_call_button(self):
+    def tap_call_button(self, switch_to_call_screen=True):
         call_button = self.marionette.find_element(*self._call_bar_locator)
         self.marionette.tap(call_button)
-        return CallScreen(self.marionette)
+        if switch_to_call_screen:
+            return CallScreen(self.marionette)

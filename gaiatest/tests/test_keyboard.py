@@ -7,53 +7,50 @@ import time
 
 from gaiatest import GaiaTestCase
 
-
 class TestKeyboard(GaiaTestCase):
 
     # UI Tests app locators
-    _test_keyboard_link_locator = ('link text', 'Keyboard test')
-    _text_input_locator = ('css selector', "input[type='text']")
+    _test_message_title_locator = ('css selector', 'h1[data-l10n-id="messages"]')
+    _new_message_icon_locator = ('id', 'icon-add')
+    _text_input_locator = ('id', 'messages-recipient')
 
-    _number_input_locator = ('css selector', "input[type='number']")
-
-    _test_page_frame_locator = ('id', 'test-iframe')
-
-    _test_string = "aG1D2s3~!=@.#$^"
-    # Temporarily, long press work, but special characters selection fail
-    _final_string = "aG1D2s3~!=@.#$A"
+    _string = "aG1D2s3~!=@.#$^aśZïd".decode("UTF-8")
 
     def setUp(self):
         GaiaTestCase.setUp(self)
 
-        # launch the UI Tests app
-        self.app = self.apps.launch('UI tests')
+        # launch the Messages app
+        self.app = self.apps.launch('Messages')
 
     def test_keyboard_basic(self):
+        # initialize the keyboard app
+        kbapp = self.keyboard
 
         # wait for app to load
-        self.wait_for_element_displayed(*self._test_keyboard_link_locator)
+        self.wait_for_element_displayed(*self._test_message_title_locator)
 
-        # click/load the Keyboard test page
-        self.marionette.find_element(*self._test_keyboard_link_locator).click()
+        # do a new message
+        new_message = self.marionette.find_element(*self._new_message_icon_locator)
+        self.marionette.tap(new_message)
 
-        test_page_frame = self.marionette.find_element(*self._test_page_frame_locator)
-        self.marionette.switch_to_frame(test_page_frame)
-
+        # tap the message composition area
         self.wait_for_element_displayed(*self._text_input_locator)
-        self.marionette.find_element(*self._text_input_locator).click()
+        message_composition = self.marionette.find_element(*self._text_input_locator)
+        self.marionette.tap(message_composition)
 
-        self.keyboard.send(self._test_string)
-        self.keyboard.tap_backspace()
-        self.keyboard.enable_caps_lock()
-        self.keyboard.long_press('A')
+        # send first 15 characters, delete last character, send a space, and send all others
+        kbapp.send(self._string[:15])
+        kbapp.tap_backspace()
+        kbapp.tap_space()
+        kbapp.send(self._string[15:])
 
+        # select special character using extended character selector
+        kbapp.choose_extended_character('A', 8)
+
+        # go back to app frame and finish this
         self.marionette.switch_to_frame(self.app.frame)
-
-        self.wait_for_element_present(*self._test_page_frame_locator)
-        test_page_frame = self.marionette.find_element(*self._test_page_frame_locator)
-        self.marionette.switch_to_frame(test_page_frame)
 
         self.wait_for_element_displayed(*self._text_input_locator)
         output_text = self.marionette.find_element(*self._text_input_locator).get_attribute("value")
 
-        self.assertEqual(self._final_string, output_text)
+        self.assertEqual(self._string[:14] + ' ' + self._string[15:] + 'Æ'.decode("UTF-8"), output_text)

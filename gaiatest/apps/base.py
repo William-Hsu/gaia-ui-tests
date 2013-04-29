@@ -126,6 +126,7 @@ class Base(object):
         # now back to app
         self.launch()
 
+
 class PageRegion(Base):
     def __init__(self, marionette, element):
         self.root_element = element

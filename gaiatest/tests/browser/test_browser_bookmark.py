@@ -28,7 +28,6 @@ class TestBrowserBookmark(GaiaTestCase):
 
         browser.tap_bookmark_button()
         browser.tap_add_bookmark_to_home_screen_choice_button()
-        browser.switch_to_bookmark_edit_dialog()
         browser.type_bookmark_title(self.bookmark_title)
         browser.tap_add_bookmark_to_home_screen_dialog_button()
 
@@ -62,6 +61,8 @@ class TestBrowserBookmark(GaiaTestCase):
         return pageHelper.getCurrentPageNumber() < (pageHelper.getTotalPagesNumber() - 1);""")
 
     def delete_bookmark(self, bookmark_name):
+        # ensure we are in the homescreen app
+        self.apps.launch('Homescreen')
         self.marionette.execute_script("""
                                           name = arguments[0];
                                           let apps = window.wrappedJSObject.GridManager.getApps();

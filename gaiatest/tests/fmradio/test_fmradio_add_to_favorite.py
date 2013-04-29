@@ -3,20 +3,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from gaiatest import GaiaTestCase
+from gaiatest.apps.fmradio.app import FmRadio
 
 
 class TestFMRadioAddToFavorite(GaiaTestCase):
-
-    _frequency_display_locator = ('id', 'frequency')
-    _favorite_button_locator = ('id', 'bookmark-button')
-    _favorite_list_locator = ('css selector', "div[class='fav-list-frequency']")
-    _favorite_remove_locator = ('css selector', "div[class='fav-list-remove-button']")
 
     def setUp(self):
         GaiaTestCase.setUp(self)
 
         # launch the FM Radio app
-        self.app = self.apps.launch('FM Radio')
+        self.fm_radio = FmRadio(self.marionette)
+        self.fm_radio.launch()
 
     def test_add_to_favorite(self):
         """ Add a frequency to favorite list
@@ -30,33 +27,17 @@ class TestFMRadioAddToFavorite(GaiaTestCase):
         # wait for the radio start-up
         self.wait_for_condition(lambda m: self.data_layer.is_fm_radio_enabled)
 
-        # save the initial count of favorite stations
-        initial_favorite_count = len(self.marionette.find_elements(*self._favorite_list_locator))
-
-        # save the current frequency
-        current_frequency = float(self.marionette.find_element(*self._frequency_display_locator).text)
-
-        # check the ui value and the system value
-        self.assertEqual(current_frequency, float(str(self.data_layer.fm_radio_frequency)))
-
         # add the current frequency to favorite list
-        favorite_button = self.marionette.find_element(*self._favorite_button_locator)
-        self.marionette.tap(favorite_button)
+        self.fm_radio.tap_add_favorite()
 
-        # verify the change of favorite list
-        self.wait_for_element_displayed(*self._favorite_list_locator)
-        favorite_list = self.marionette.find_elements(*self._favorite_list_locator)
-        new_favorite_count = len(favorite_list)
-        self.assertEqual(initial_favorite_count, new_favorite_count - 1)
+        self.assertEqual(len(self.fm_radio.favorite_channels), 1)
 
-        # verify the favorite frequency is equal to the current frequency
-        favorite_frequency = float(favorite_list[0].text)
-        self.assertEqual(current_frequency, favorite_frequency)
+        # verify that the current frequency is in the favorite frequency is equal to the
+        self.assertEqual(self.fm_radio.frequency, self.fm_radio.favorite_channels[0].text)
 
     def tearDown(self):
         # remove the station from favorite list
-        self.wait_for_element_displayed(*self._favorite_remove_locator)
-        favorite_remove = self.marionette.find_element(*self._favorite_remove_locator)
-        self.marionette.tap(favorite_remove)
+        for favorite_channel in self.fm_radio.favorite_channels:
+            favorite_channel.remove()
 
         GaiaTestCase.tearDown(self)
