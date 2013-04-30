@@ -15,11 +15,10 @@ class TestChangeKeyboardLanguage(GaiaTestCase):
     _select_keyb_frame_locator = ("css selector", "#keyboard-frame iframe")
     _language_key_locator      = ("css selector", ".keyboard-row button[data-keycode='-3']")
     _special_key_locator       = ("css selector", ".keyboard-row button[data-keycode='241']")
-    _specific_key              = u'\xf1'
+    _expected_key              = u'\xf1'
 
     def setUp(self):
         GaiaTestCase.setUp(self)
-
         # Launch the Settings app
         self.app = self.apps.launch('Settings')
 
@@ -36,29 +35,26 @@ class TestChangeKeyboardLanguage(GaiaTestCase):
         # Select keyboard language
         self.wait_for_element_present(*self._select_language_locator)
         selected_language = self.marionette.find_element(*self._select_language_locator)
-        import pdb; pdb.set_trace()
         self.marionette.tap(selected_language)
 
 
-        # --Verify the keyboard layout
-        # --launch the email app (follow manyally test case)
+        # --Verify the keyboard layout--
+        # launch the email app (follow manyally test case)
         self.app = self.apps.launch('email')
 
         # Select name field
         self.wait_for_element_present(*self._select_text_field_locator)
         select_text_field = self.marionette.find_element(*self._select_text_field_locator)
-        # tap() cannot work here
         select_text_field.click()
 
-        # Switch to keyboard frame and change language -> Temporary solution. Waiting for keyboard class
+        # Switch to keyboard frame and switch language
+        # Temporary solution since action-chain function of global button is not yet accomplished(Issue #752)
         self.marionette.switch_to_frame()
         keybframe = self.marionette.find_element(*self._select_keyb_frame_locator)
         self.marionette.switch_to_frame(keybframe, focus=False)
-
-        # Temporary solution since action-chain function not yet merged
         language_key = self.marionette.find_element(*self._language_key_locator)
         self.marionette.tap(language_key)
         special_key = self.marionette.find_element(*self._special_key_locator).text
 
         # Checking if exists the special key - "ñ"
-        self.assertEqual(special_key, self._specific_key)
+        self.assertEqual(special_key, self._expected_key)
