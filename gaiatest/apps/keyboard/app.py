@@ -7,6 +7,7 @@ import time
 
 from gaiatest.apps.base import Base
 from marionette.marionette import Actions
+from gaiatest import GaiaData
 
 
 class Keyboard(Base):
@@ -40,6 +41,20 @@ class Keyboard(Base):
                     'U': 'ŪÛÙÚÜ',
                     'Y': '¥Ÿ',
                     'Z': 'ŽŹŻ'}
+
+    # Language table
+    language_table = ['english',
+                      'dvorak',
+                      'otherlatins',
+                      'cyrillic',
+                      'arabic',
+                      'hebrew',
+                      'zhuyin',
+                      'pinyin',
+                      'greek',
+                      'japanese',
+                      'portuguese',
+                      'spanish']
 
     # special keys locators
     _language_key = '-3'
@@ -127,6 +142,20 @@ class Keyboard(Base):
         key_obj = self.marionette.find_element(*self._key_locator(self._upper_case_key))
         self.marionette.double_tap(key_obj)
         self.marionette.switch_to_frame()
+
+    def enable_keyboard_layout(self, keyboard_layout):
+        set_keyboard = GaiaData(self.marionette)
+        kb_setting = "keyboard.layouts."+keyboard_layout
+        for support_keyboard in self.language_table:
+            print support_keyboard
+            rs = set_keyboard.get_setting(kb_setting)
+            print rs
+            if keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == False:
+                set_keyboard.set_setting(kb_setting, True)
+                return 'Enable '+keyboard_layout+' keyboard'
+            if keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == True:
+                return keyboard_layout+' keyboard was ready to use'
+        return keyboard_layout+' keyboard is not support'
 
     # this is to detect if the element is present in a shorter time
     # default timeout to 600 and allow people to set a higher timeout
@@ -222,3 +251,5 @@ class Keyboard(Base):
             self._tap(self._numeric_sign_key)
         self._tap(self._alt_key)
         self.marionette.switch_to_frame()
+
+
