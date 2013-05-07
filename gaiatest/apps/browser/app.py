@@ -87,6 +87,7 @@ class Browser(Base):
         self.wait_for_element_displayed(*self._bookmark_menu_locator)
 
     def tap_add_bookmark_to_home_screen_choice_button(self):
+        self.wait_for_element_displayed(*self._add_bookmark_to_home_screen_choice_locator)
         self.marionette.tap(self.marionette.find_element(*self._add_bookmark_to_home_screen_choice_locator))
         # Switch to System app where the add bookmark dialog resides
         self.marionette.switch_to_frame()

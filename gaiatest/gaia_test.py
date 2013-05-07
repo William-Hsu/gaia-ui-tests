@@ -172,7 +172,9 @@ class GaiaData(object):
         assert result, "Unable to change setting with name '%s' to '%s'" % (name, value)
 
     def set_volume(self, value):
-        self.set_setting('audio.volume.master', value)
+        channels = ['master', 'content', 'notification', 'alarm', 'telephony', 'bt_sco']
+        for channel in channels:
+            self.set_setting('audio.volume.%s' % channel, value)
 
     def bt_enable_bluetooth(self):
         self.marionette.switch_to_frame()
@@ -322,6 +324,11 @@ class GaiaDevice(object):
         return self._is_android_build
 
     @property
+    def is_online(self):
+        # Returns true if the device has a network connection established (cell data, wifi, etc)
+        return self.marionette.execute_script('return window.navigator.onLine;')
+
+    @property
     def has_mobile_connection(self):
         return self.marionette.execute_script('return window.navigator.mozMobileConnection !== undefined')
 
@@ -418,7 +425,7 @@ class GaiaTestCase(MarionetteTestCase):
         self.apps = GaiaApps(self.marionette)
         self.data_layer = GaiaData(self.marionette, self.testvars)
         from gaiatest.apps.keyboard.app import Keyboard
-        self.keyboard = Keyboard(self.marionette) 
+        self.keyboard = Keyboard(self.marionette)
 
         self.cleanUp()
 
@@ -471,20 +478,39 @@ class GaiaTestCase(MarionetteTestCase):
         # reset to home screen
         self.marionette.execute_script("window.wrappedJSObject.dispatchEvent(new Event('home'));")
 
+    def install_marketplace(self):
+        _yes_button_locator = ('id', 'app-install-install-button')
+        mk = {"name": "Marketplace Dev",
+              "manifest": "https://marketplace-dev.allizom.org/manifest.webapp ",
+              }
+
+        if not self.apps.is_app_installed(mk['name']):
+            # install the marketplace dev app
+            self.marionette.execute_script('navigator.mozApps.install("%s")' % mk['manifest'])
+
+            # TODO add this to the system app object when we have one
+            self.wait_for_element_displayed(*_yes_button_locator)
+            self.marionette.tap(self.marionette.find_element(*_yes_button_locator))
+            self.wait_for_element_not_displayed(*_yes_button_locator)
+
     def connect_to_network(self):
-        # TODO determine if we are online already
-        # TODO only enable cell data if lan failed
-        if self.testvars.get('wifi') and self.device.has_wifi:
-            self.data_layer.connect_to_wifi()
-        elif self.device.has_mobile_connection:
-            self.data_layer.connect_to_cell_data()
-        # TODO assert that we are online
+        if not self.device.is_online:
+            try:
+                self.connect_to_local_area_network()
+            except:
+                if self.device.has_mobile_connection:
+                    self.data_layer.connect_to_cell_data()
+                else:
+                    raise Exception('Unable to connect to network')
+        assert self.device.is_online
 
     def connect_to_local_area_network(self):
-        # TODO determine if we are online already
-        if self.testvars.get('wifi') and self.device.has_wifi:
-            self.data_layer.connect_to_wifi()
-        # TODO assert that we are online
+        if not self.device.is_online:
+            if self.testvars.get('wifi') and self.device.has_wifi:
+                self.data_layer.connect_to_wifi()
+                assert self.device.is_online
+            else:
+                raise Exception('Unable to connect to local area network')
 
     def push_resource(self, filename, count=1, destination=''):
         self.device.push_file(self.resource(filename), count, '/'.join(['sdcard', destination]))

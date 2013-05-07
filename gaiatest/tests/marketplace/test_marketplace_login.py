@@ -3,13 +3,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from gaiatest import GaiaTestCase
-import time
+from gaiatest.apps.marketplace.app import Marketplace
 
 
 class TestMarketplaceLogin(GaiaTestCase):
 
-    # Marketplace iframe
-    _marketplace_iframe_locator = ('css selector', "iframe[src*='marketplace']")
+    MARKETPLACE_DEV_NAME = 'Marketplace Dev'
 
     # Marketplace locators
     _settings_button_locator = ('css selector', 'a.header-button.settings')
@@ -22,112 +21,37 @@ class TestMarketplaceLogin(GaiaTestCase):
     def setUp(self):
         GaiaTestCase.setUp(self)
         self.connect_to_network()
-        self.app = self.apps.launch('Marketplace')
+        self.install_marketplace()
 
-        # Switch to marketplace iframe
-        self.marionette.switch_to_frame(self.marionette.find_element(*self._marketplace_iframe_locator))
+        self.marketplace = Marketplace(self.marionette, self.MARKETPLACE_DEV_NAME)
+        self.marketplace.launch()
 
     def test_login_marketplace(self):
         # https://moztrap.mozilla.org/manage/case/4134/
 
-        self.wait_for_element_displayed(*self._settings_button_locator)
-        self.marionette.tap(self.marionette.find_element(*self._settings_button_locator))
+        self.marketplace.wait_for_setting_displayed()
+        settings = self.marketplace.tap_settings()
+        persona = settings.tap_sign_in()
 
-        self.wait_for_element_displayed(*self._sign_in_button_locator)
-        sign_in_button = self.marionette.find_element(*self._sign_in_button_locator)
-        # TODO: click works but not tap
-        sign_in_button.click()
-
-        # TODO: This shouldn't be necessary as we are issuing the same command in
-        #       _login_to_persona, but some testers have seen improved reliability with it
-        self.marionette.switch_to_frame()
-
-        self._login_to_persona(self.testvars['marketplace']['username'],
-                               self.testvars['marketplace']['password'])
+        persona.login(self.testvars['marketplace']['username'], self.testvars['marketplace']['password'])
 
         # switch back to Marketplace
         self.marionette.switch_to_frame()
-        self.marionette.switch_to_frame(self.app.frame)
-        self.marionette.switch_to_frame(self.marionette.find_element(*self._marketplace_iframe_locator))
+        self.marketplace.launch()
 
         # tap on the signed-in notification at the bottom of the screen to dismiss it
         self.wait_for_element_displayed(*self._signed_in_notification_locator)
         self.marionette.tap(self.marionette.find_element(*self._signed_in_notification_locator))
 
-        self.wait_for_element_displayed(*self._sign_out_button_locator)
+        settings.wait_for_sign_out_button()
 
         # Verify that user is logged in
-        self.assertEqual(self.testvars['marketplace']['username'],
-                         self.marionette.find_element(*self._email_account_field_locator).get_attribute('value'))
+        self.assertEqual(self.testvars['marketplace']['username'], settings.email)
 
         # Sign out, which should return to the Marketplace home screen
-        sign_out_button = self.marionette.find_element(*self._sign_out_button_locator)
-        # TODO: click works but not tap
-        sign_out_button.click()
-        # Without this next line I was getting a StaleElementException
-        self.wait_for_element_not_displayed(*self._sign_out_button_locator)
+        settings.tap_sign_out()
 
         # Verify that user is signed out
-        self.wait_for_element_displayed(*self._settings_button_locator)
-        self.marionette.tap(self.marionette.find_element(*self._settings_button_locator))
-        self.wait_for_element_displayed(*self._sign_in_button_locator)
-
-    def _login_to_persona(self, username, password):
-
-        _persona_frame_locator = ('css selector', "iframe")
-
-        # Trusty UI on home screen
-        _tui_container_locator = ('id', 'trustedui-frame-container')
-
-        # Persona dialog
-        _waiting_locator = ('css selector', 'body.waiting')
-        _email_input_locator = ('id', 'authentication_email')
-        _password_input_locator = ('id', 'authentication_password')
-        _next_button_locator = ('css selector', 'button.start')
-        _returning_button_locator = ('css selector', 'button.returning')
-        _sign_in_button_locator = ('id', 'signInButton')
-        _this_session_only_button_locator = ('id', 'this_is_not_my_computer')
-
-        # Switch to top level frame then Persona frame
-        self.marionette.switch_to_frame()
-        self.wait_for_element_present(*_tui_container_locator)
-        trustyUI = self.marionette.find_element(*_tui_container_locator)
-        self.wait_for_condition(lambda m: trustyUI.find_element(*_persona_frame_locator))
-        personaDialog = trustyUI.find_element(*_persona_frame_locator)
-        self.marionette.switch_to_frame(personaDialog)
-
-        # Wait for the loading to complete
-        self.wait_for_element_not_present(*_waiting_locator)
-
-        if self.marionette.find_element(*_email_input_locator).is_displayed():
-            # Persona has no memory of your details ie after device flash
-            email_field = self.marionette.find_element(*_email_input_locator)
-            email_field.send_keys(username)
-
-            next_button = self.marionette.find_element(*_next_button_locator)
-            # TODO:  Remove workaround after bug 845849
-            self.marionette.execute_script("arguments[0].scrollIntoView(false);", [next_button])
-            self.marionette.tap(next_button)
-
-            self.wait_for_element_displayed(*_password_input_locator)
-            password_field = self.marionette.find_element(*_password_input_locator)
-            password_field.send_keys(password)
-
-            self.wait_for_element_displayed(*_returning_button_locator)
-            self.marionette.tap(self.marionette.find_element(*_returning_button_locator))
-
-        else:
-            # Persona remembers your username and password
-            self.marionette.tap(self.marionette.find_element(*_sign_in_button_locator))
-
-            # Sometimes it prompts for "Remember Me?"
-            # If it does, tell it to remember you for this session only
-            # TODO: Find out actual logic behind when it prompts or not
-            try:
-                # We need to wait if the prompt is going to appear, but if it doesn't we don't want to fail the test
-                time.sleep(3)
-
-                # TODO: Click works, tap does not
-                self.marionette.find_element(*_this_session_only_button_locator).click()
-            except:
-                pass
+        self.marketplace.wait_for_setting_displayed()
+        settings = self.marketplace.tap_settings()
+        settings.wait_for_sign_in_displayed()

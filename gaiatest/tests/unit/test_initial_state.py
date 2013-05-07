@@ -48,6 +48,7 @@ class TestInitialState(GaiaTestCase):
 
         self.assertFalse(self.data_layer.is_wifi_enabled)
         self.assertFalse(self.data_layer.is_cell_data_enabled)
+        self.assertFalse(self.device.is_online)
 
         if self.device.has_wifi:
             self.data_layer.enable_wifi()

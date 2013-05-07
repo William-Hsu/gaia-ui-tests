@@ -102,6 +102,8 @@ class TestEverythingMeInstallApp(GaiaTestCase):
         return pageHelper.getCurrentPageNumber() < (pageHelper.getTotalPagesNumber() - 1);""")
 
     def delete_bookmark(self, bookmark_name):
+        # TODO move this snippet to the Homescreen app object
+        
         self.marionette.execute_script("""
                                           name = arguments[0];
                                           let apps = window.wrappedJSObject.GridManager.getApps();

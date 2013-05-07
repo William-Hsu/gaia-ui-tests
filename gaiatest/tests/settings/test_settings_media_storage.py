@@ -45,7 +45,7 @@ class TestSettingsMediaStorage(GaiaTestCase):
         movies = self.marionette.find_element(*self._movies_space_locator)
 
         # Check that media storage has updated to reflect the newly pushed media
-        self.assertEqual(music.text, '241 KB')
+        self.assertEqual(music.text, '120 KB')
         self.assertEqual(pictures.text, '348 KB')
         self.assertEqual(movies.text, '120 KB')
 

@@ -8,6 +8,8 @@ from gaiatest.apps.marketplace.app import Marketplace
 
 class TestSearchMarketplaceAndInstallApp(GaiaTestCase):
 
+    MARKETPLACE_DEV_NAME = 'Marketplace Dev'
+
     APP_NAME = 'Lanyrd'
     APP_DEVELOPER = 'Lanyrd'
     APP_INSTALLED = False
@@ -22,13 +24,11 @@ class TestSearchMarketplaceAndInstallApp(GaiaTestCase):
     def setUp(self):
         GaiaTestCase.setUp(self)
         self.connect_to_network()
+        self.install_marketplace()
 
     def test_search_and_install_app(self):
-        marketplace = Marketplace(self.marionette)
+        marketplace = Marketplace(self.marionette, self.MARKETPLACE_DEV_NAME)
         marketplace.launch()
-
-        # Switch to marketplace iframe
-        marketplace.switch_to_marketplace_frame()
 
         results = marketplace.search(self.APP_NAME)
 

@@ -141,7 +141,7 @@ class TestFtu(GaiaTestCase):
         self.assertTrue(self.data_layer.is_wifi_connected(self.testvars['wifi']),
                                 "WiFi was not connected via FTU app")
 
-        # Marionette needs to be resynced to the frame, see bug 855029
+        # is_wifi_connected() calls switch_to_frame()
         self.marionette.switch_to_frame(self.app.frame)
 
         # Tap next
