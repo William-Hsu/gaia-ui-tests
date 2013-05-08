@@ -42,8 +42,8 @@ class Keyboard(Base):
                     'Y': '¥Ÿ',
                     'Z': 'ŽŹŻ'}
 
-    # Language table
-    language_table = ['english',
+    # keyboard table
+    keyboard_table = ['english',
                       'dvorak',
                       'otherlatins',
                       'cyrillic',
@@ -55,6 +55,28 @@ class Keyboard(Base):
                       'japanese',
                       'portuguese',
                       'spanish']
+
+    # Mapping of keyboard L10N
+    keyboard_mapping = {'English':'English',
+                        'Spanish':'Español',
+                        'Portuguese':'Português',
+                        'Czech':'Česká',
+                        'French':'français',
+                        'German':'Deutsch',
+                        'Hebrew':'עִבְרִית',
+                        'Norwegian Bokmal':'Norsk',
+                        'Russian':'русский',
+                        'Serbian (Cyrillic)':'српска ћирилица',
+                        'Slovak':'Slovenčina',
+                        'Turkish':'Türkçe',
+                        'English - Dvorak':
+                        'Dvorak','Chinese - Traditional - Zhuyin':'繁體注音輸入',
+                        'Chinese - Simplified & Traditional - Pinyin':'拼音输入',
+                        'Arabic':'العربية',
+                        'Greek':'Greek',
+                        'Polish':'Polish',
+                        'Japanese - Kanji':
+                        'Japanese - Kanji'}
 
     # special keys locators
     _language_key = '-3'
