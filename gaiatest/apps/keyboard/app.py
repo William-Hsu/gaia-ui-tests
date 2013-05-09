@@ -56,30 +56,8 @@ class Keyboard(Base):
                       'portuguese',
                       'spanish']
 
-    # Mapping of keyboard L10N
-    keyboard_mapping = {'English':'English',
-                        'Spanish':'Español',
-                        'Portuguese':'Português',
-                        'Czech':'Česká',
-                        'French':'français',
-                        'German':'Deutsch',
-                        'Hebrew':'עִבְרִית',
-                        'Norwegian Bokmal':'Norsk',
-                        'Russian':'русский',
-                        'Serbian (Cyrillic)':'српска ћирилица',
-                        'Slovak':'Slovenčina',
-                        'Turkish':'Türkçe',
-                        'English - Dvorak':
-                        'Dvorak','Chinese - Traditional - Zhuyin':'繁體注音輸入',
-                        'Chinese - Simplified & Traditional - Pinyin':'拼音输入',
-                        'Arabic':'العربية',
-                        'Greek':'Greek',
-                        'Polish':'Polish',
-                        'Japanese - Kanji':
-                        'Japanese - Kanji'}
-
     # special keys locators
-    _language_key = '-3'
+    _language_key_locator = ("css selector", ".keyboard-row button[data-keycode='-3']")
     _numeric_sign_key = '-2'
     _alpha_key = '-1'
     _backspace_key = '8'
@@ -228,6 +206,35 @@ class Keyboard(Base):
                 time.sleep(0.8)
         self.marionette.switch_to_frame()
 
+    # Switch keyboard language
+    # Mapping of language code => {
+    # "en":"English",
+    # "en-Dvorak":"Dvorak",
+    # "pt_BR":"Português",
+    # "pl":"polski",
+    # "cz":"Česká",
+    # "fr":"français",
+    # "de":"Deutsch",
+    # "nb":"Norsk",
+    # "sk":"Slovenčina",
+    # "tr":"Türkçe",
+    # "ru":"русский",
+    # "sr-Cyrl":"српска ћирилица",
+    # "sr-Latn":"srpski",
+    # "he":"עִבְרִית",
+    # "ar":"العربية",
+    # "el":"Greek"}
+    def switch_keyboard_language(self, lang_code):
+        html_string = ".keyboard-row button[data-keyboard='"+lang_code+"']"
+        keyboard_language_locator = ("css selector", html_string)
+        self._switch_to_keyboard()
+        language_key = self.marionette.find_element(*self._language_key_locator)
+        action = Actions(self.marionette)
+        action.press(language_key).wait(2).perform()
+        target_kb_layout =  self.marionette.find_element(*keyboard_language_locator)
+        action.move(target_kb_layout).release().perform()
+        self.marionette.switch_to_frame()
+
     # switch to keyboard with numbers and special characters
     def switch_to_number_keyboard(self):
         self._switch_to_keyboard()
@@ -270,5 +277,3 @@ class Keyboard(Base):
             self._tap(self._numeric_sign_key)
         self._tap(self._alt_key)
         self.marionette.switch_to_frame()
-
-
