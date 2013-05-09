@@ -146,7 +146,7 @@ class Keyboard(Base):
     def enable_keyboard_layout(self, keyboard_layout):
         set_keyboard = GaiaData(self.marionette)
         kb_setting = "keyboard.layouts." + keyboard_layout
-        for support_keyboard in self.language_table:
+        for support_keyboard in self.keyboard_table:
             if keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == False:
                 set_keyboard.set_setting(kb_setting, True)
                 return 'Enable ' + keyboard_layout + ' keyboard'
