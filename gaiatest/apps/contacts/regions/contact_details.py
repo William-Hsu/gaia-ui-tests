@@ -32,7 +32,7 @@ class ContactDetails(Base):
         return self.marionette.find_element(*self._contact_image_locator).get_attribute('style')
 
     def wait_for_contact_details_to_load(self):
-        self.wait_for_element_displayed(*self._call_phone_number_button_locator)
+        self.wait_for_condition(lambda m: m.find_element(*self._call_phone_number_button_locator).is_displayed())
 
     def tap_phone_number(self):
         self.marionette.tap(self.marionette.find_element(*self._call_phone_number_button_locator))

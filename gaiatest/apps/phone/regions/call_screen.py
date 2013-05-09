@@ -26,6 +26,7 @@ class CallScreen(Phone):
 
     @property
     def outgoing_calling_contact(self):
+        self.wait_for_element_displayed(*self._calling_contact_locator)
         return self.marionette.find_element(*self._calling_contact_locator).text
 
     @property

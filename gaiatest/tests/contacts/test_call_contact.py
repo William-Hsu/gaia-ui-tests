@@ -36,12 +36,12 @@ class TestContacts(GaiaTestCase):
         call_screen.wait_for_outgoing_call()
 
         # Check the number displayed is the one we dialed
-        # TODO if this step fails bug 817291 may have been fixed
         self.assertIn(self.contact['tel']['value'],
-                      call_screen.calling_contact_information)
+                      call_screen.outgoing_calling_contact)
 
+        # TODO: This is no longer appearing on the call screen. Xfailing due to bug #869060
         self.assertIn(self.contact['givenName'],
-                      call_screen.outgoing_calling_contact[:-1])
+                      call_screen.calling_contact_information)
 
         call_screen.hang_up()
         # Switch back to main frame before Marionette loses track bug #840931
