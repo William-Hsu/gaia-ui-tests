@@ -145,14 +145,14 @@ class Keyboard(Base):
 
     def enable_keyboard_layout(self, keyboard_layout):
         set_keyboard = GaiaData(self.marionette)
-        kb_setting = "keyboard.layouts."+keyboard_layout
+        kb_setting = "keyboard.layouts." + keyboard_layout
         for support_keyboard in self.language_table:
             if keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == False:
                 set_keyboard.set_setting(kb_setting, True)
-                return 'Enable '+keyboard_layout+' keyboard'
+                return 'Enable ' + keyboard_layout + ' keyboard'
             elif keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == True:
-                return keyboard_layout+' keyboard was ready to use'
-        return keyboard_layout+' keyboard is not support'
+                return keyboard_layout + ' keyboard was ready to use'
+        return keyboard_layout + ' keyboard is not support'
 
     # this is to detect if the element is present in a shorter time
     # default timeout to 600 and allow people to set a higher timeout
@@ -173,7 +173,7 @@ class Keyboard(Base):
             self._switch_to_keyboard()
             key_obj = self.marionette.find_element(*self._key_locator(key))
             action = Actions(self.marionette)
-            action.press(key_obj).wait(timeout/1000).release().perform()
+            action.press(key_obj).wait(timeout / 1000).release().perform()
             self.marionette.switch_to_frame()
 
     # this would go through fastest way to tap/click through a string
@@ -225,13 +225,13 @@ class Keyboard(Base):
     # "ar":"العربية",
     # "el":"Greek"}
     def switch_keyboard_language(self, lang_code):
-        html_string = ".keyboard-row button[data-keyboard='"+lang_code+"']"
+        html_string = ".keyboard-row button[data-keyboard='" + lang_code + "']"
         keyboard_language_locator = ("css selector", html_string)
         self._switch_to_keyboard()
         language_key = self.marionette.find_element(*self._language_key_locator)
         action = Actions(self.marionette)
         action.press(language_key).wait(2).perform()
-        target_kb_layout =  self.marionette.find_element(*keyboard_language_locator)
+        target_kb_layout = self.marionette.find_element(*keyboard_language_locator)
         action.move(target_kb_layout).release().perform()
         self.marionette.switch_to_frame()
 
