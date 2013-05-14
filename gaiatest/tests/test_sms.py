@@ -11,12 +11,12 @@ class TestSms(GaiaTestCase):
     # Summary page
     _summary_header_locator = ('xpath', "//h1[text()='Messages']")
     _create_new_message_locator = ('id', 'icon-add')
-    _unread_message_locator = ('css selector', 'li > a.unread')
+    _unread_message_locator = ('css selector', "#threads-container li a[href^='#num=']")
 
     # Message composition
-    _receiver_input_locator = ('id', 'receiver-input')
-    _message_field_locator = ('id', 'message-to-send')
-    _send_message_button_locator = ('id', 'send-message')
+    _receiver_input_locator = ('css selector', '#messages-recipients-container span.recipient')
+    _message_field_locator = ('id', 'messages-input')
+    _send_message_button_locator = ('id', 'messages-send-button')
     _back_header_link_locator = ('xpath', '//header/a[1]')
     _message_sending_spinner_locator = (
         'css selector',
@@ -27,8 +27,14 @@ class TestSms(GaiaTestCase):
     _received_message_content_locator = ('xpath', "//li[@class='bubble'][a[@class='received']]")
     _unread_icon_locator = ('css selector', 'aside.icon-unread')
 
-    def setUp(self):
-        GaiaTestCase.setUp(self)
+    def test_sms_send(self):
+        """
+        This test sends a text message to itself. It waits for a reply message.
+        It does not yet clean up after itself but it can handle it.
+        https://moztrap.mozilla.org/manage/case/1322/
+        """
+
+        _text_message_content = "Automated Test %s" % str(time.time())
 
         # delete any existing SMS messages to start clean
         self.data_layer.delete_all_sms()
@@ -41,16 +47,6 @@ class TestSms(GaiaTestCase):
         # launch the app
         self.app = self.apps.launch('Messages')
 
-    def test_sms_send(self):
-        # https://moztrap.mozilla.org/manage/case/1322/
-
-        '''
-        This test sends a text message to itself. It waits for a reply message.
-        It does not yet clean up after itself but it can handle it.
-        '''
-
-        _text_message_content = "Automated Test %s" % str(time.time())
-
         self.wait_for_element_displayed(*self._summary_header_locator)
 
         # click new message
@@ -58,23 +54,22 @@ class TestSms(GaiaTestCase):
         self.marionette.tap(create_new_message)
 
         self.wait_for_element_displayed(*self._receiver_input_locator)
+        contact_field = self.marionette.find_element(*self._receiver_input_locator)
+        contact_field.send_keys(self.testvars['carrier']['phone_number'])
 
-        # type phone number
-        contact_field = self.marionette.find_element(
-            *self._receiver_input_locator)
-        contact_field.send_keys(self.testvars['this_phone_number'])
-
-        message_field = self.marionette.find_element(
-            *self._message_field_locator)
+        message_field = self.marionette.find_element(*self._message_field_locator)
         message_field.send_keys(_text_message_content)
+        # change the focus to the message field to enable the send button
+        # TODO: Switch to tap() when bug #869688 is fixed
+        message_field.click()
 
         #click send
-        send_message_button = self.marionette.find_element(
-            *self._send_message_button_locator)
+        send_message_button = self.marionette.find_element(*self._send_message_button_locator)
         self.marionette.tap(send_message_button)
+        self.wait_for_element_not_present(*self._message_sending_spinner_locator, timeout=120)
 
-        self.wait_for_element_not_present(
-            *self._message_sending_spinner_locator, timeout=120)
+        # make sure the message was actually sent
+        self.wait_for_element_displayed(*self._received_message_content_locator)
 
         # go back
         back_header_button = self.marionette.find_element(*self._back_header_link_locator)

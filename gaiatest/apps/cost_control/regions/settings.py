@@ -37,7 +37,9 @@ class Settings(Base):
 
     def select_when_use_is_above_unit_and_value(self, unit, value):
         when_use_is_above_button = self.marionette.find_element(*self._when_use_is_above_button_locator)
-        self.wait_for_condition(lambda m: when_use_is_above_button.get_attribute('disabled') == 'false')
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._when_use_is_above_button_locator).get_attribute('disabled') == 'false'
+        )
         self.marionette.tap(when_use_is_above_button)
 
         self.wait_for_element_displayed(*self._unit_button_locator)
@@ -45,7 +47,7 @@ class Settings(Base):
         if current_unit.text is not unit:
             self.marionette.tap(current_unit)
             # We need to wait for the javascript to do its stuff
-            self.wait_for_condition(lambda m: current_unit.text == unit)
+            self.wait_for_condition(lambda m: m.find_element(*self._unit_button_locator).text == unit)
 
         # clear the original assigned value and set it to the new value
         self.wait_for_element_displayed(*self._size_input_locator)

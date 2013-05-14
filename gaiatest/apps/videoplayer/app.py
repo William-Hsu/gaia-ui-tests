@@ -28,7 +28,7 @@ class VideoPlayer(Base):
 
     @property
     def first_video_name(self):
-        return self.marionette.find_element(*self._video_name_locator).get_attribute('data-raw')
+        return self.marionette.find_element(*self._video_name_locator).get_attribute('data-title')
 
     def tap_first_video_item(self):
         first_video_item = self.marionette.find_elements(*self._video_items_locator)[0]

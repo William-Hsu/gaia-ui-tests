@@ -9,12 +9,13 @@ from gaiatest.apps.base import PageRegion
 class SearchResults(Base):
 
     _search_results_area_locator = ('id', 'search-results')
+    _search_results_loading_locator = ('css selector', 'div.loading')
     _search_result_locator = ('css selector', '#search-results li.item')
     _filter_button_locator = ('css selector', '#site-header .header-button.filter')
 
     def __init__(self, marionette):
         Base.__init__(self, marionette)
-        self.wait_for_element_displayed(*self._search_results_area_locator)
+        self.wait_for_element_not_present(*self._search_results_loading_locator)
 
     def tap_filter(self):
         self.marionette.tap(self.marionette.find_element(*self._filter_button_locator))

@@ -105,7 +105,7 @@ class ContactForm(Base):
 
     @property
     def comment(self):
-        return self.marionette.find_element(*self._country_locator).text
+        return self.marionette.find_element(*self._comment_locator).text
 
     def type_comment(self, value):
         element = self.marionette.find_element(*self._comment_locator)

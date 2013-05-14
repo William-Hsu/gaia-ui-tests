@@ -5,6 +5,7 @@
 from gaiatest import GaiaTestCase
 import time
 
+
 class TestSettingsCellData(GaiaTestCase):
 
     # Cell Data Settings locators
@@ -56,7 +57,9 @@ class TestSettingsCellData(GaiaTestCase):
             turn_on_prompt_button = self.marionette.find_element(*self._cell_data_prompt_turn_on_button_locator)
             self.marionette.tap(turn_on_prompt_button)
 
-        self.wait_for_condition(lambda m: enabled_checkbox.get_attribute('checked') == 'true')
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._cell_data_enabled_input_locator).get_attribute('checked') == 'true'
+        )
 
         # verify that cell data is now on
         self.assertTrue(self.data_layer.is_cell_data_enabled, "Cell data was not enabled via Settings app")

@@ -41,11 +41,15 @@ class TestSettingsDoNotTrack(GaiaTestCase):
         donottrack_checkbox = self.marionette.find_element(*self._donottrack_checkbox_locator)
 
         # turned off by default
-        self.wait_for_condition(lambda m: donottrack_checkbox.get_attribute('checked') is None)
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._donottrack_checkbox_locator).get_attribute('checked') is None
+        )
 
         # turn on - tap on the label
         self.marionette.tap(donottrack_label)
-        self.wait_for_condition(lambda m: donottrack_checkbox.get_attribute('checked'))
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._donottrack_checkbox_locator).get_attribute('checked')
+        )
 
         # should be on
         self.assertTrue(self.data_layer.get_setting('privacy.donottrackheader.enabled'),
@@ -53,7 +57,9 @@ class TestSettingsDoNotTrack(GaiaTestCase):
 
         # turn back off
         self.marionette.tap(donottrack_label)
-        self.wait_for_condition(lambda m: donottrack_checkbox.get_attribute('checked') is None)
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._donottrack_checkbox_locator).get_attribute('checked') is None
+        )
 
         # should be off
         self.assertFalse(self.data_layer.get_setting('privacy.donottrackheader.enabled'),

@@ -8,7 +8,7 @@ from gaiatest.apps.base import Base
 
 class Login(Base):
     # iframes
-    _persona_frame_locator = ('css selector', "iframe.screen[data-url*='persona.org']")
+    _persona_frame_locator = ('css selector', "iframe.screen[data-url*='persona.org/sign_in#NATIVE']")
 
     # persona login
     _waiting_locator = ('css selector', 'body.waiting')

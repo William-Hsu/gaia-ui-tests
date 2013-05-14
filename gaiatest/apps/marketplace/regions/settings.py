@@ -9,8 +9,8 @@ from gaiatest.apps.base import PageRegion
 class Settings(Base):
 
     _email_account_field_locator = ('id', 'email')
-    _save_locator = ('css selector', '.form-footer.c > button')
-    _sign_in_button_locator = ('css selector', 'a.button.browserid')
+    _save_locator = ('css selector', 'footer > p > button')
+    _sign_in_button_locator = ('css selector', 'a.button.persona')
     _sign_out_button_locator = ('css selector', 'a.button.logout')
     _back_button_locator = ('id', 'nav-back')
 

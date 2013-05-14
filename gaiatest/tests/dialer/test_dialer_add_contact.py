@@ -49,7 +49,7 @@ class TestDialerAddContact(GaiaTestCase):
         self.wait_for_element_displayed(*self._keyboard_container_locator)
 
         # Dial number
-        self.phone.keypad.phone_number = self.contact['tel']['value']
+        self.phone.keypad.dial_phone_number(self.contact['tel']['value'])
 
         # Assert that the number was entered correctly.
         phone_view = self.marionette.find_element(*self._phone_number_view_locator)

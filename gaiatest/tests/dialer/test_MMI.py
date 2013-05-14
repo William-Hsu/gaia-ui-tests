@@ -18,7 +18,7 @@ class TestMMI(GaiaTestCase):
         phone.launch()
 
         # Dial the code
-        phone.keypad.phone_number = IMEI_CODE
+        phone.keypad.dial_phone_number(IMEI_CODE)
 
         attention_screen = AttentionScreen(self.marionette)
         self.assertEqual(attention_screen.message, self.testvars['imei'])

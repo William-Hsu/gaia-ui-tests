@@ -14,6 +14,7 @@ class ContactDetails(Base):
     _edit_contact_button_locator = ('id', 'edit-contact-button')
     _back_button_locator = ('id', 'details-back')
     _add_remove_favorite_button_locator = ('id', 'toggle-favorite')
+    _comments_locator = ('id', 'note-details-template-0')
 
     def __init__(self, marionette):
         Base.__init__(self, marionette)
@@ -28,11 +29,15 @@ class ContactDetails(Base):
         return self.marionette.find_element(*self._call_phone_number_button_locator).text
 
     @property
+    def comments(self):
+        return self.marionette.find_element(*self._comments_locator).text
+
+    @property
     def image_style(self):
         return self.marionette.find_element(*self._contact_image_locator).get_attribute('style')
 
     def wait_for_contact_details_to_load(self):
-        self.wait_for_condition(lambda m: m.find_element(*self._call_phone_number_button_locator).is_displayed())
+        self.wait_for_element_displayed(*self._call_phone_number_button_locator)
 
     def tap_phone_number(self):
         self.marionette.tap(self.marionette.find_element(*self._call_phone_number_button_locator))
