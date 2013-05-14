@@ -135,6 +135,17 @@ class Keyboard(Base):
 
         self.marionette.switch_to_frame()
 
+    def disable_keyboard_layout(self, keyboard_layout):
+        set_keyboard = GaiaData(self.marionette)
+        kb_setting = "keyboard.layouts." + keyboard_layout
+        for support_keyboard in self.keyboard_table:
+            if keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == True:
+                set_keyboard.set_setting(kb_setting, False)
+                return 'Disable ' + keyboard_layout + ' keyboard'
+            elif keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == False:
+                return keyboard_layout + ' keyboard was disabled'
+        return keyboard_layout + ' keyboard is not support'
+
     def enable_caps_lock(self):
         self._switch_to_keyboard()
         if self.is_element_present(*self._key_locator(self._alpha_key)):
@@ -208,22 +219,23 @@ class Keyboard(Base):
 
     # Switch keyboard language
     # Mapping of language code => {
+    # "ar":"ﺎﻠﻋﺮﺒﻳﺓ",
+    # "cz":"Česká",
+    # "de":"Deutsch",
+    # "el":"Greek"
     # "en":"English",
     # "en-Dvorak":"Dvorak",
+    # "es":"Español",
+    # "fr":"français",
+    # "he":"עִבְרִית",
+    # "nb":"Norsk",
     # "pt_BR":"Português",
     # "pl":"polski",
-    # "cz":"Česká",
-    # "fr":"français",
-    # "de":"Deutsch",
-    # "nb":"Norsk",
-    # "sk":"Slovenčina",
-    # "tr":"Türkçe",
     # "ru":"русский",
+    # "sk":"Slovenčina",
     # "sr-Cyrl":"српска ћирилица",
     # "sr-Latn":"srpski",
-    # "he":"עִבְרִית",
-    # "ar":"العربية",
-    # "el":"Greek"}
+    # "tr":"Türkçe"}
     def switch_keyboard_language(self, lang_code):
         html_string = ".keyboard-row button[data-keyboard='" + lang_code + "']"
         keyboard_language_locator = ("css selector", html_string)

@@ -26,6 +26,8 @@ class TestChangeKeyboardLanguage(GaiaTestCase):
         self.app = self.apps.launch('Settings')
 
     def test_change_keyboard_language_settings(self):
+        # Initial the keyboard app
+        keyboard_app = self.keyboard
 
         # Navigate to keyboard settings
         self.wait_for_element_displayed(*self._keyboard_settings_locator)
@@ -47,13 +49,12 @@ class TestChangeKeyboardLanguage(GaiaTestCase):
         select_text_field.click()
 
         # Switch to keyboard frame and switch language
-        # Temporary solution since action-chain function of global button is not yet accomplished(Issue #752)
-        self.marionette.switch_to_frame()
+        keyboard_app.switch_keyboard_language("es")
         keybframe = self.marionette.find_element(*self._select_keyb_frame_locator)
         self.marionette.switch_to_frame(keybframe, focus=False)
-        language_key = self.marionette.find_element(*self._language_key_locator)
-        self.marionette.tap(language_key)
+        self.wait_for_element_displayed(*self._special_key_locator)
         special_key = self.marionette.find_element(*self._special_key_locator).text
 
         # Checking if exists the special key - "ñ"
         self.assertEqual(special_key, self._expected_key)
+        keyboard_app.disable_keyboard_layout("spanish")
