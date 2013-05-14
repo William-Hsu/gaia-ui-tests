@@ -32,12 +32,16 @@ class TestSettingsGPS(GaiaTestCase):
         enabled_switch = self.marionette.find_element(*self._gps_enabled_input_locator)
 
         # should be on by default
-        self.wait_for_condition(lambda m: enabled_switch.get_attribute('checked'))
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._gps_enabled_input_locator).get_attribute('checked')
+        )
 
         # turn off - we have to tap on the label rather than the input
         enabled_label = self.marionette.find_element(*self._gps_enabled_label_locator)
         self.marionette.tap(enabled_label)
-        self.wait_for_condition(lambda m: not enabled_switch.get_attribute('checked'))
+        self.wait_for_condition(
+            lambda m: not self.marionette.find_element(*self._gps_enabled_input_locator).get_attribute('checked')
+        )
 
         # should be off
         self.assertFalse(self.data_layer.get_setting('geolocation.enabled'), "GPS was not enabled via Settings app")
@@ -46,7 +50,9 @@ class TestSettingsGPS(GaiaTestCase):
         enabled_label = self.marionette.find_element(*self._gps_enabled_label_locator)
         self.marionette.tap(enabled_label)
         enabled_switch = self.marionette.find_element(*self._gps_enabled_input_locator)
-        self.wait_for_condition(lambda m: enabled_switch.get_attribute('checked') == 'true')
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._gps_enabled_input_locator).get_attribute('checked') == 'true'
+        )
 
         # should be on
         self.assertTrue(self.data_layer.get_setting('geolocation.enabled'), "GPS was not disabled via Settings app")

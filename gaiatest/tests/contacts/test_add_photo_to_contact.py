@@ -80,7 +80,10 @@ class TestContacts(GaiaTestCase):
 
         contact_details = edit_contact.tap_update()
 
-        self.assertEqual(full_name, contact_details.full_name)
+        # the timing of the style updating is difficult to catch
+        import time
+        time.sleep(1)
 
+        self.assertEqual(full_name, contact_details.full_name)
         self.assertNotEqual(contact_details.image_style, saved_contact_image_style,
                             'The picture associated with the contact was not changed.')

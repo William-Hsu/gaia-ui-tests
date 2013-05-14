@@ -69,4 +69,4 @@ class TestCameraUnlockWithPasscode(GaiaTestCase):
 
         # Wait for the svg to animate and handle to disappear
         # TODO add assertion that unlock buttons are visible after bug 813561 is fixed
-        self.wait_for_condition(lambda m: not unlock_handle.is_displayed())
+        self.wait_for_condition(lambda m: not self.marionette.find_element(*self._lockscreen_handle_locator).is_displayed())

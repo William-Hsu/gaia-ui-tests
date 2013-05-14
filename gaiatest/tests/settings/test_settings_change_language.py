@@ -11,7 +11,7 @@ class TestChangeLanguage(GaiaTestCase):
     _settings_header_text_locator = ('css selector', '#root > header > h1')
     _language_settings_locator = ('id', 'menuItem-languageAndRegion')
     _language_section_locator = ('id', 'languages')
-    _select_language_locator = ('css selector', '#languages li:nth-child(2) .fake-select button')
+    _select_language_locator = ('css selector', '#languages li:nth-child(1) .fake-select button')
     _back_button_locator = ('css selector', ".current header > a")
 
     def setUp(self):
@@ -36,7 +36,7 @@ class TestChangeLanguage(GaiaTestCase):
         select_box = self.marionette.find_element(*self._select_language_locator)
         select_box.click()
 
-        self._select(u'Fran\u00E7ais')
+        self._select(u'Deutsch')
 
         # Go back to Settings menu
         go_back = self.marionette.find_element(*self._back_button_locator)
@@ -45,8 +45,8 @@ class TestChangeLanguage(GaiaTestCase):
         after_language_change = self.marionette.find_element(*self._settings_header_text_locator).text
 
         # Verify that language has changed
-        self.assertEqual(after_language_change, u'Param\u00E8tres')
-        self.assertEqual(self.data_layer.get_setting('language.current'), "fr")
+        self.assertEqual(after_language_change, u'Einstellungen')
+        self.assertEqual(self.data_layer.get_setting('language.current'), "de")
 
     def _select(self, match_string):
         # Cheeky Select wrapper until Marionette has its own

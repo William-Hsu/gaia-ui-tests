@@ -11,7 +11,7 @@ class SettingsForm(Base):
     _settings_close_button_locator = ('id', 'settings-close')
     _order_by_last_name_locator = ('css selector', 'p[data-l10n-id="contactsOrderBy"]')
     _order_by_last_name_switch_locator = ('css selector', 'input[name="order.lastname"]')
-    _import_from_sim_button_locator = ('css selector', 'button.icon-sim[data-l10n-id="importSim2"]')
+    _import_from_sim_button_locator = ('css selector', 'button.icon-sim[data-l10n-id="importSim"]')
     _import_from_gmail_button_locator = ('css selector', 'button.icon-gmail[data-l10n-id="importGmail"]')
     _import_from_windows_live_button_locator = ('css selector', 'button.icon-live[data-l10n-id="importLive"]')
 

@@ -37,7 +37,7 @@ class FTUStep3(CostControl):
         if current_unit.text is not unit:
             self.marionette.tap(current_unit)
             # We need to wait for the javascript to do its stuff
-            self.wait_for_condition(lambda m: current_unit.text == unit)
+            self.wait_for_condition(lambda m: m.find_element(*self._unit_button_locator).text == unit)
 
         # clear the original assigned value and set it to the new value
         self.wait_for_element_displayed(*self._size_input_locator)

@@ -7,7 +7,6 @@ from marionette.marionette import Actions
 from gaiatest import GaiaTestCase
 
 
-
 class TestEverythingMeInstallApp(GaiaTestCase):
 
     app_installed = False
@@ -43,7 +42,7 @@ class TestEverythingMeInstallApp(GaiaTestCase):
         self.marionette.execute_script("window.wrappedJSObject.GridManager.goToPreviousPage();")
 
         # check for the available shortcut categories
-        self.wait_for_element_present(*self._shortcut_items_locator)
+        self.wait_for_element_displayed(*self._shortcut_items_locator)
 
         shortcuts = self.marionette.find_elements(*self._shortcut_items_locator)
         self.assertGreater(len(shortcuts), 0, 'No shortcut categories found')
@@ -103,7 +102,7 @@ class TestEverythingMeInstallApp(GaiaTestCase):
 
     def delete_bookmark(self, bookmark_name):
         # TODO move this snippet to the Homescreen app object
-        
+
         self.marionette.execute_script("""
                                           name = arguments[0];
                                           let apps = window.wrappedJSObject.GridManager.getApps();

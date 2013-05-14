@@ -14,7 +14,7 @@ DAYS_OF_WEEK = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY',
 
 class TestCalendar(GaiaTestCase):
 
-    _add_event_button_locator = ('xpath', "//a[@href='/event/add/']")
+    _add_event_button_locator = ('xpath', "//a[@href='/add/']")
     _event_title_input_locator = ('xpath', "//input[@data-l10n-id='event-title']")
     _event_location_input_locator = ('xpath', "//input[@data-l10n-id='event-location']")
     _event_start_time_input_locator = ('xpath', "//input[@data-l10n-id='event-start-time']")
@@ -117,9 +117,6 @@ class TestCalendar(GaiaTestCase):
         all_events = self.marionette.find_elements(*day_view_time_slot_individual_events_locator)
         while len(all_events) > 0:
             self.marionette.tap(all_events[0])
-
-            self.wait_for_element_displayed(*self._edit_event_button_locator)
-            self.marionette.tap(self.marionette.find_element(*self._edit_event_button_locator))
 
             self.wait_for_element_displayed(*self._delete_event_button_locator)
             delete_event_button = self.marionette.find_element(*self._delete_event_button_locator)

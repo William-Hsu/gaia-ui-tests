@@ -30,4 +30,5 @@ class TestGalleryTilesView(GaiaTestCase):
         self.assertTrue(image.is_photo_toolbar_displayed)
 
         gallery = image.tap_tile_view_button()
+        gallery.wait_for_files_to_load(1)
         self.assertTrue(gallery.are_gallery_items_displayed)

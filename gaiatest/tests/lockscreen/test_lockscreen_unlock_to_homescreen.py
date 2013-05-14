@@ -31,7 +31,7 @@ class TestLockScreen(GaiaTestCase):
         unlock_button.click()
 
         lockscreen_element = self.marionette.find_element(*self._lockscreen_locator)
-        self.wait_for_condition(lambda m: not lockscreen_element.is_displayed())
+        self.wait_for_condition(lambda m: not self.marionette.find_element(*self._lockscreen_locator).is_displayed())
 
         self.assertFalse(lockscreen_element.is_displayed(), "Lockscreen still visible after unlock")
 
@@ -59,4 +59,4 @@ class TestLockScreen(GaiaTestCase):
 
         # Wait for the svg to animate and handle to disappear
         # TODO add assertion that unlock buttons are visible after bug 813561 is fixed
-        self.wait_for_condition(lambda m: not unlock_handle.is_displayed())
+        self.wait_for_condition(lambda m: not self.marionette.find_element(*self._lockscreen_handle_locator).is_displayed())

@@ -13,7 +13,7 @@ class TestContacts(GaiaTestCase):
     _sms_app_iframe_locator = ('css selector', 'iframe[src^="app://sms"][src$="index.html"]')
 
     #SMS app locators
-    _sms_app_header_locator = ('id', 'messages-header-text')
+    _sms_app_header_locator = ('id', 'header-text')
     _contact_carrier_locator = ('id', 'contact-carrier')
 
     def setUp(self):

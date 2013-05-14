@@ -10,7 +10,6 @@ class TestEverythingMe(GaiaTestCase):
     # Everything.Me locators
     _shortcut_items_locator = ('css selector', '#shortcuts-items li')
     _app_icon_locator = ('css selector', 'div.evme-apps li.cloud')
-    _social_category_locator = ('xpath', "//li[@data-query='Social']")
 
     # Homescreen locators
     _homescreen_frame_locator = ('css selector', 'div.homescreen > iframe')
@@ -18,7 +17,6 @@ class TestEverythingMe(GaiaTestCase):
 
     # Facebook app locator
     _facebook_iframe_locator = ('css selector', "iframe[data-url*='http://touch.facebook.com/']")
-    _facebook_app_locator = ('xpath', "//li[@data-name='Facebook']")
 
     def setUp(self):
         GaiaTestCase.setUp(self)
@@ -45,15 +43,16 @@ class TestEverythingMe(GaiaTestCase):
         shortcuts = self.marionette.find_elements(*self._shortcut_items_locator)
         self.assertGreater(len(shortcuts), 0, 'No shortcut categories found')
 
-        # Tap on the 'Social' category
-        social = self.marionette.find_element(*self._social_category_locator)
-        self.marionette.tap(social)
+        # Tap on the first category of shortcuts
+        # TODO: Had to revert back to using the first shortcut as v1.0.1 still uses canvas
+        self.marionette.tap(shortcuts[0])
 
         self.wait_for_element_displayed(*self._app_icon_locator)
 
-        # Tap the available Facebook application shortcut
-        app = self.marionette.find_element(*self._facebook_app_locator)
-        self.marionette.tap(app)
+        # Due to everythingme HTML we cannot locate by the text...
+        app_icons = self.marionette.find_elements(*self._app_icon_locator)
+        # ... so we'll just get the first one.
+        self.marionette.tap(app_icons[0])
 
         # Switch to top level frame then look for the Facebook app
         self.marionette.switch_to_frame()

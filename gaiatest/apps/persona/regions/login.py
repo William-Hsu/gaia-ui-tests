@@ -8,7 +8,7 @@ from gaiatest.apps.base import Base
 
 class Login(Base):
     # iframes
-    _persona_frame_locator = ('css selector', "iframe.screen[data-url*='persona.org']")
+    _persona_frame_locator = ('css selector', "iframe.screen[data-url*='persona.org/sign_in#NATIVE']")
 
     # persona login
     _waiting_locator = ('css selector', 'body.waiting')
@@ -34,7 +34,6 @@ class Login(Base):
         self.wait_for_element_not_present(*self._waiting_locator)
         # TODO: because of issue: https://github.com/mozilla/browserid/issues/3318 we can't wait for the right element
         time.sleep(5)
-
 
     def type_email(self, value):
         email_field = self.marionette.find_element(*self._email_input_locator)
@@ -76,7 +75,7 @@ class Login(Base):
 
     @property
     def form_section_id(self):
-        self.wait_for_element_displayed(*self._form_section_locator)
+        self.wait_for_element_displayed(*self._form_section_locator, timeout=120)
         return self.marionette.find_element(*self._form_section_locator).get_attribute('id')
 
     def wait_for_sign_in_button(self):

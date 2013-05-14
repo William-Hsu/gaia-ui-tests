@@ -38,7 +38,7 @@ class TestBluetoothSettings(GaiaTestCase):
 
         label = self.marionette.find_element(*self._bluetooth_label_locator)
         self.marionette.tap(label)
-        self.wait_for_condition(lambda m: checkbox.get_attribute('checked') == 'true')
+        self.wait_for_condition(lambda m: m.find_element(*self._bluetooth_checkbox_locator).get_attribute('checked') == 'true')
         self.assertTrue(self.data_layer.get_setting('bluetooth.enabled'))
 
     def tearDown(self):

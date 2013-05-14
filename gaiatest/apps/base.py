@@ -7,6 +7,7 @@ import time
 from marionette.errors import NoSuchElementException
 from marionette.errors import ElementNotVisibleException
 from marionette.errors import TimeoutException
+from marionette.errors import StaleElementException
 
 from gaiatest import GaiaApps
 
@@ -56,7 +57,7 @@ class Base(object):
             try:
                 if self.marionette.find_element(by, locator).is_displayed():
                     break
-            except NoSuchElementException:
+            except (NoSuchElementException, StaleElementException):
                 pass
         else:
             raise TimeoutException(
@@ -70,6 +71,8 @@ class Base(object):
             try:
                 if not self.marionette.find_element(by, locator).is_displayed():
                     break
+            except StaleElementException:
+                pass
             except NoSuchElementException:
                 break
         else:
@@ -84,7 +87,7 @@ class Base(object):
                 value = method(self.marionette)
                 if value:
                     return value
-            except NoSuchElementException:
+            except (NoSuchElementException, StaleElementException):
                 pass
             time.sleep(0.5)
         else:
