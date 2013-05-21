@@ -128,23 +128,12 @@ class Keyboard(Base):
 
         # find the extended key and perform the action chain
         extend_keys = self.marionette.find_elements(*self._highlight_key_locator)
-        if movement == True:
+        if movement is True:
             action.move(extend_keys[selection - 1]).perform()
         action.release().perform()
         time.sleep(1)
 
         self.marionette.switch_to_frame()
-
-    def disable_keyboard_layout(self, keyboard_layout):
-        set_keyboard = GaiaData(self.marionette)
-        kb_setting = "keyboard.layouts." + keyboard_layout
-        for support_keyboard in self.keyboard_table:
-            if keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == True:
-                set_keyboard.set_setting(kb_setting, False)
-                return 'Disable ' + keyboard_layout + ' keyboard'
-            elif keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == False:
-                return keyboard_layout + ' keyboard was disabled'
-        return keyboard_layout + ' keyboard is not support'
 
     def enable_caps_lock(self):
         self._switch_to_keyboard()
@@ -153,17 +142,6 @@ class Keyboard(Base):
         key_obj = self.marionette.find_element(*self._key_locator(self._upper_case_key))
         self.marionette.double_tap(key_obj)
         self.marionette.switch_to_frame()
-
-    def enable_keyboard_layout(self, keyboard_layout):
-        set_keyboard = GaiaData(self.marionette)
-        kb_setting = "keyboard.layouts." + keyboard_layout
-        for support_keyboard in self.keyboard_table:
-            if keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == False:
-                set_keyboard.set_setting(kb_setting, True)
-                return 'Enable ' + keyboard_layout + ' keyboard'
-            elif keyboard_layout == support_keyboard and set_keyboard.get_setting(kb_setting) == True:
-                return keyboard_layout + ' keyboard was ready to use'
-        return keyboard_layout + ' keyboard is not support'
 
     # this is to detect if the element is present in a shorter time
     # default timeout to 600 and allow people to set a higher timeout

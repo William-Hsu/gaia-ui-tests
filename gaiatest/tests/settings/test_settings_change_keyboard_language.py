@@ -57,4 +57,3 @@ class TestChangeKeyboardLanguage(GaiaTestCase):
 
         # Checking if exists the special key - "ñ"
         self.assertEqual(special_key, self._expected_key)
-        keyboard_app.disable_keyboard_layout("spanish")
