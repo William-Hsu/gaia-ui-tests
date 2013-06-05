@@ -32,9 +32,11 @@ class VideoPlayer(Base):
 
     def tap_first_video_item(self):
         first_video_item = self.marionette.find_elements(*self._video_items_locator)[0]
-        self.marionette.tap(first_video_item)
+        first_video_item.tap()
         from gaiatest.apps.videoplayer.regions.fullscreen_video import FullscreenVideo
-        return FullscreenVideo(self.marionette)
+        fullscreen = FullscreenVideo(self.marionette)
+        fullscreen.wait_for_player_frame_displayed()
+        return fullscreen
 
     @property
     def empty_video_title(self):

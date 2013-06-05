@@ -109,7 +109,9 @@ class Keyboard(Base):
     def _tap(self, val):
         self.wait_for_element_displayed(*self._key_locator(val))
         key = self.marionette.find_element(*self._key_locator(val))
-        self.marionette.tap(key)
+        key.tap()
+        # new el.tap() timing requires a bit of a wait after tapping on a key
+        time.sleep(0.5)
 
     # This is for selecting special characters after long pressing
     # "selection" is the nth special element you want to select (n>=1)
@@ -128,7 +130,7 @@ class Keyboard(Base):
 
         # find the extended key and perform the action chain
         extend_keys = self.marionette.find_elements(*self._highlight_key_locator)
-        if movement == True:
+        if movement is True:
             action.move(extend_keys[selection - 1]).perform()
         action.release().perform()
         time.sleep(1)
@@ -201,9 +203,36 @@ class Keyboard(Base):
                 else:
                     assert False, 'Key %s not found on the keyboard' % val
 
-            # after tap/click space key, it might get screwed up due to timing issue. adding 0.8sec for it.
-            if ord(val) == int(self._space_key):
-                time.sleep(0.8)
+        self.marionette.switch_to_frame()
+
+    # Switch keyboard language
+    # Mapping of language code => {
+    # "ar":"ﺎﻠﻋﺮﺒﻳﺓ",
+    # "cz":"Česká",
+    # "de":"Deutsch",
+    # "el":"Greek"
+    # "en":"English",
+    # "en-Dvorak":"Dvorak",
+    # "es":"Español",
+    # "fr":"français",
+    # "he":"עִבְרִית",
+    # "nb":"Norsk",
+    # "pt_BR":"Português",
+    # "pl":"polski",
+    # "ru":"русский",
+    # "sk":"Slovenčina",
+    # "sr-Cyrl":"српска ћирилица",
+    # "sr-Latn":"srpski",
+    # "tr":"Türkçe"}
+    def switch_keyboard_language(self, lang_code):
+        keyboard_language_locator = ("css selector", ".keyboard-row button[data-keyboard='%s']" % lang_code)
+
+        self._switch_to_keyboard()
+        language_key = self.marionette.find_element(*self._language_key_locator)
+        action = Actions(self.marionette)
+        action.press(language_key).wait(2).perform()
+        target_kb_layout = self.marionette.find_element(*keyboard_language_locator)
+        action.move(target_kb_layout).release().perform()
         self.marionette.switch_to_frame()
 
     # Switch keyboard language
@@ -257,8 +286,8 @@ class Keyboard(Base):
 
     def tap_backspace(self):
         self._switch_to_keyboard()
-        bs = self.marionette.find_element(self._button_locator[0], self._button_locator[1] % self._backspace_key)
-        self.marionette.tap(bs)
+        backspace = self.marionette.find_element(self._button_locator[0], self._button_locator[1] % self._backspace_key)
+        backspace.tap()
         self.marionette.switch_to_frame()
 
     def tap_space(self):

@@ -30,19 +30,10 @@ class TestSms(GaiaTestCase):
     def test_sms_send(self):
         """
         This test sends a text message to itself. It waits for a reply message.
-        It does not yet clean up after itself but it can handle it.
         https://moztrap.mozilla.org/manage/case/1322/
         """
 
         _text_message_content = "Automated Test %s" % str(time.time())
-
-        # delete any existing SMS messages to start clean
-        self.data_layer.delete_all_sms()
-
-        # temporary workaround for bug 837029
-        # launch and then kill messags app, to clear any left-over sms msg notifications
-        self.app = self.apps.launch('Messages', False)
-        self.apps.kill(self.app)
 
         # launch the app
         self.app = self.apps.launch('Messages')
@@ -51,7 +42,7 @@ class TestSms(GaiaTestCase):
 
         # click new message
         create_new_message = self.marionette.find_element(*self._create_new_message_locator)
-        self.marionette.tap(create_new_message)
+        create_new_message.tap()
 
         self.wait_for_element_displayed(*self._receiver_input_locator)
         contact_field = self.marionette.find_element(*self._receiver_input_locator)
@@ -60,12 +51,11 @@ class TestSms(GaiaTestCase):
         message_field = self.marionette.find_element(*self._message_field_locator)
         message_field.send_keys(_text_message_content)
         # change the focus to the message field to enable the send button
-        # TODO: Switch to tap() when bug #869688 is fixed
-        message_field.click()
+        message_field.tap()
 
         #click send
         send_message_button = self.marionette.find_element(*self._send_message_button_locator)
-        self.marionette.tap(send_message_button)
+        send_message_button.tap()
         self.wait_for_element_not_present(*self._message_sending_spinner_locator, timeout=120)
 
         # make sure the message was actually sent
@@ -73,14 +63,14 @@ class TestSms(GaiaTestCase):
 
         # go back
         back_header_button = self.marionette.find_element(*self._back_header_link_locator)
-        self.marionette.tap(back_header_button)
+        back_header_button.tap()
 
         # now wait for the return message to arrive.
         self.wait_for_element_displayed(*self._unread_message_locator, timeout=180)
 
         # go into the new message
         unread_message = self.marionette.find_element(*self._unread_message_locator)
-        self.marionette.tap(unread_message)
+        unread_message.tap()
 
         self.wait_for_element_displayed(*self._received_message_content_locator)
         # get the most recent listed and most recent received text message

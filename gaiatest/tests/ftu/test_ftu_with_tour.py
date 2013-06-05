@@ -47,29 +47,29 @@ class TestFtu(GaiaTestCase):
         # Go through the FTU setup as quickly as possible to get to the Tour section
         self.wait_for_element_displayed(*self._section_languages_locator)
         # Tap next
-        self.marionette.tap(self.marionette.find_element(*self._next_button_locator))
+        self.marionette.find_element(*self._next_button_locator).tap()
         self.wait_for_element_displayed(*self._section_cell_data_locator)
         # Tap next
-        self.marionette.tap(self.marionette.find_element(*self._next_button_locator))
+        self.marionette.find_element(*self._next_button_locator).tap()
         self.wait_for_element_displayed(*self._section_wifi_locator)
         # Tap next
-        self.marionette.tap(self.marionette.find_element(*self._next_button_locator))
+        self.marionette.find_element(*self._next_button_locator).tap()
         self.wait_for_element_displayed(*self._section_date_time_locator)
         # Tap next
-        self.marionette.tap(self.marionette.find_element(*self._next_button_locator))
+        self.marionette.find_element(*self._next_button_locator).tap()
         self.wait_for_element_displayed(*self._section_import_contacts_locator)
         # Tap next
-        self.marionette.tap(self.marionette.find_element(*self._next_button_locator))
+        self.marionette.find_element(*self._next_button_locator).tap()
         self.wait_for_element_displayed(*self._section_welcome_browser_locator)
         # Tap next
-        self.marionette.tap(self.marionette.find_element(*self._next_button_locator))
+        self.marionette.find_element(*self._next_button_locator).tap()
         self.wait_for_element_displayed(*self._section_browser_privacy_locator)
         # Tap next
-        self.marionette.tap(self.marionette.find_element(*self._next_button_locator))
+        self.marionette.find_element(*self._next_button_locator).tap()
         self.wait_for_element_displayed(*self._section_finish_locator)
 
         # Take the tour
-        self.marionette.tap(self.marionette.find_element(*self._take_tour_button_locator))
+        self.marionette.find_element(*self._take_tour_button_locator).tap()
 
         # Walk through the tour
         self.wait_for_element_displayed(*self._step1_header_locator)
@@ -78,36 +78,36 @@ class TestFtu(GaiaTestCase):
 
         # First time we see the next button we need to wait for it
         self.wait_for_element_displayed(*self._tour_next_button_locator)
-        self.marionette.tap(self.marionette.find_element(*self._tour_next_button_locator))
+        self.marionette.find_element(*self._tour_next_button_locator).tap()
 
         self.wait_for_element_displayed(*self._step2_header_locator)
         self.assertEqual(self.marionette.find_element(*self._step2_header_locator).text,
                          "Swipe from left to right to discover new apps.")
-        self.marionette.tap(self.marionette.find_element(*self._tour_next_button_locator))
+        self.marionette.find_element(*self._tour_next_button_locator).tap()
 
         self.wait_for_element_displayed(*self._step3_header_locator)
         self.assertEqual(self.marionette.find_element(*self._step3_header_locator).text,
                          "Tap and hold on an icon to delete or move it.")
-        self.marionette.tap(self.marionette.find_element(*self._tour_next_button_locator))
+        self.marionette.find_element(*self._tour_next_button_locator).tap()
 
         self.wait_for_element_displayed(*self._step4_header_locator)
         self.assertEqual(self.marionette.find_element(*self._step4_header_locator).text,
                          "Swipe down to access recent notifications, credit information and settings.")
-        self.marionette.tap(self.marionette.find_element(*self._tour_next_button_locator))
+        self.marionette.find_element(*self._tour_next_button_locator).tap()
 
         self.wait_for_element_displayed(*self._step5_header_locator)
         self.assertEqual(self.marionette.find_element(*self._step5_header_locator).text,
                          "Tap and hold the home button to browse and close recent apps.")
 
         # Try going back a step
-        self.marionette.tap(self.marionette.find_element(*self._tour_back_button_locator))
+        self.marionette.find_element(*self._tour_back_button_locator).tap()
         self.wait_for_element_displayed(*self._step4_header_locator)
-        self.marionette.tap(self.marionette.find_element(*self._tour_next_button_locator))
+        self.marionette.find_element(*self._tour_next_button_locator).tap()
         self.wait_for_element_displayed(*self._step5_header_locator)
-        self.marionette.tap(self.marionette.find_element(*self._tour_next_button_locator))
+        self.marionette.find_element(*self._tour_next_button_locator).tap()
 
         self.wait_for_element_displayed(*self._section_tutorial_finish_locator)
-        self.marionette.tap(self.marionette.find_element(*self._lets_go_button_locator))
+        self.marionette.find_element(*self._lets_go_button_locator).tap()
 
         # Switch back to top level now that FTU app is gone
         self.marionette.switch_to_frame()
