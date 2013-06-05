@@ -46,7 +46,8 @@ class TestEverythingMeSearch(GaiaTestCase):
         self.wait_for_element_present(*self._search_tip_locator)
         search_tips = self.marionette.find_elements(*self._search_tip_locator)
         self.assertGreater(len(search_tips), 0, 'No search suggestions found')
-        self.marionette.tap(search_tips[0])
+        self.wait_for_element_displayed(*self._search_tip_locator)
+        search_tips[0].tap()
 
         # Wait for the apps to appear
         self.wait_for_element_present(*self._shortcut_items_locator)

@@ -8,14 +8,14 @@ from gaiatest.apps.base import Base
 
 class Login(Base):
     # iframes
-    _persona_frame_locator = ('css selector', "iframe.screen[data-url*='persona.org']")
+    _persona_frame_locator = ('css selector', "iframe.screen[data-url*='persona.org/sign_in#NATIVE']")
 
     # persona login
-    _waiting_locator = ('css selector', 'body.waiting')
+    _body_loading_locator = ('css selector', 'body.loading')
     _email_input_locator = ('id', 'authentication_email')
     _password_input_locator = ('id', 'authentication_password')
-    _next_button_locator = ('css selector', 'button.start')
-    _returning_button_locator = ('css selector', 'button.returning')
+    _continue_button_locator = ('css selector', '.continue.right')
+    _returning_button_locator = ('css selector', 'button.isReturning')
     _sign_in_button_locator = ('id', 'signInButton')
     _this_session_only_button_locator = ('id', 'this_is_not_my_computer')
     _this_is_not_me_locator = ('id', 'thisIsNotMe')
@@ -28,21 +28,20 @@ class Login(Base):
 
     def switch_to_persona_frame(self):
         self.wait_for_element_present(*self._persona_frame_locator)
-        persona_iframe = self.marionette.find_element(*self._persona_frame_locator)
-        self.marionette.switch_to_frame(persona_iframe)
+        self.frame = self.marionette.find_element(*self._persona_frame_locator)
+        self.marionette.switch_to_frame(self.frame)
 
-        self.wait_for_element_not_present(*self._waiting_locator)
-        # TODO: because of issue: https://github.com/mozilla/browserid/issues/3318 we can't wait for the right element
-        time.sleep(5)
-
+        self.wait_for_element_not_present(*self._body_loading_locator)
 
     def type_email(self, value):
         email_field = self.marionette.find_element(*self._email_input_locator)
         email_field.send_keys(value)
+        self.dismiss_keyboard()
 
     def type_password(self, value):
         password_field = self.marionette.find_element(*self._password_input_locator)
         password_field.send_keys(value)
+        self.dismiss_keyboard()
 
     def type_create_password(self, value):
         password_field = self.marionette.find_element(*self._create_password_locator)
@@ -52,27 +51,26 @@ class Login(Base):
         password_field = self.marionette.find_element(*self._confirm_password_locator)
         password_field.send_keys(value)
 
-    def tap_next(self):
-        next_button = self.marionette.find_element(*self._next_button_locator)
-        # TODO:  Remove workaround after bug 845849
-        self.marionette.execute_script("arguments[0].scrollIntoView(false);", [next_button])
-        self.marionette.tap(next_button)
-        self.wait_for_element_not_displayed(*self._next_button_locator)
+    def tap_continue(self):
+        continue_button = self.marionette.find_element(*self._continue_button_locator)
+        self.wait_for_element_displayed(*self._continue_button_locator)
+        continue_button.tap()
+        self.wait_for_element_not_displayed(*self._continue_button_locator)
 
     def tap_verify_user(self):
-        self.marionette.tap(self.marionette.find_element(*self._verify_user_locator))
+        self.marionette.find_element(*self._verify_user_locator).tap()
 
     def tap_sign_in(self):
-        self.marionette.tap(self.marionette.find_element(*self._sign_in_button_locator))
+        self.marionette.find_element(*self._sign_in_button_locator).tap()
 
     def tap_this_is_not_me(self):
-        self.marionette.tap(self.marionette.find_element(*self._this_is_not_me_locator))
+        self.marionette.find_element(*self._this_is_not_me_locator).tap()
 
     def tap_returning(self):
-        self.marionette.tap(self.marionette.find_element(*self._returning_button_locator))
+        self.marionette.find_element(*self._returning_button_locator).tap()
 
     def tap_this_session_only(self):
-        self.marionette.tap(self.marionette.find_element(*self._this_session_only_button_locator))
+        self.marionette.find_element(*self._this_session_only_button_locator).tap()
 
     @property
     def form_section_id(self):

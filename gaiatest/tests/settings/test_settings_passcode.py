@@ -14,8 +14,7 @@ class TestSettingsPasscode(GaiaTestCase):
     _phonelock_menu_item_locator = ('id', 'menuItem-phoneLock')
     _phonelock_section_locator = ('id', 'phoneLock')
     _passcode_enable_locator = ('css selector', 'li.lockscreen-enabled label')
-    _phoneLock_passcode_section_locator = ('id', 'phoneLock-passcode')
-    _passcode_input_locator = ('css selector', 'div#passcode-pseudo-input span.passcode-digit')
+    _phonelock_passcode_section_locator = ('id', 'phoneLock-passcode')
     _passcode_create_locator = ('id', 'passcode-create')
 
     def setUp(self):
@@ -34,16 +33,19 @@ class TestSettingsPasscode(GaiaTestCase):
         # navigate to phone lock settings
         self.wait_for_element_displayed(*self._phonelock_menu_item_locator)
         phonelock_menu_item = self.marionette.find_element(*self._phonelock_menu_item_locator)
-        self.marionette.tap(phonelock_menu_item)
+
+        # TODO bug 878017 - remove the explicit scroll once bug is fixed
+        self.marionette.execute_script("arguments[0].scrollIntoView(false);", [phonelock_menu_item])
+        phonelock_menu_item.tap()
 
         # enable passcode
         self.wait_for_element_displayed(*self._phonelock_section_locator)
         passcode_enable_item = self.marionette.find_element(*self._passcode_enable_locator)
-        self.marionette.tap(passcode_enable_item)
+        # TODO Tap one pixel above bottom edge to dodge the System update notification banner bug 879192
+        passcode_enable_item.tap(y=(passcode_enable_item.size['height'] - 1))
 
         # switch to keyboard, input passcode
-        self.wait_for_element_displayed(*self._phoneLock_passcode_section_locator)
-        passcode_input_items = self.marionette.find_elements(*self._passcode_input_locator)
+        self.wait_for_element_displayed(*self._phonelock_passcode_section_locator)
         self.keyboard._switch_to_keyboard()
         for times in range(2):
             self.keyboard.send("".join(self._input_passcode))
@@ -53,9 +55,11 @@ class TestSettingsPasscode(GaiaTestCase):
         self.marionette.switch_to_frame(self.app.frame)
 
         # create passcode
-        self.wait_for_element_displayed(*self._phoneLock_passcode_section_locator)
+        self.wait_for_element_displayed(*self._phonelock_passcode_section_locator)
         passcode_create = self.marionette.find_element(*self._passcode_create_locator)
-        self.marionette.tap(passcode_create)
+
+        passcode_create.tap()
+        self.wait_for_element_displayed(*self._phonelock_section_locator)
 
         # assert
         passcode_code = self.data_layer.get_setting('lockscreen.passcode-lock.code')

@@ -4,6 +4,7 @@
 
 from gaiatest import GaiaTestCase
 from gaiatest.apps.marketplace.app import Marketplace
+from gaiatest.mocks.persona_test_user import PersonaTestUser
 
 
 class TestMarketplaceLogin(GaiaTestCase):
@@ -13,7 +14,7 @@ class TestMarketplaceLogin(GaiaTestCase):
     # Marketplace locators
     _settings_button_locator = ('css selector', 'a.header-button.settings')
     _sign_in_button_locator = ('css selector', 'a.button.browserid')
-    _signed_in_notification_locator = ('id', 'notification')
+    _signed_in_notification_locator = ('css selector', '#notification.show')
     _sign_out_button_locator = ('css selector', 'a.button.logout')
 
     _email_account_field_locator = ('id', 'email')
@@ -22,6 +23,9 @@ class TestMarketplaceLogin(GaiaTestCase):
         GaiaTestCase.setUp(self)
         self.connect_to_network()
         self.install_marketplace()
+
+        self.user = PersonaTestUser().create_user(verified=True,
+                                                  env={"browserid": "firefoxos.persona.org", "verifier": "marketplace-dev.allizom.org"})
 
         self.marketplace = Marketplace(self.marionette, self.MARKETPLACE_DEV_NAME)
         self.marketplace.launch()
@@ -33,20 +37,17 @@ class TestMarketplaceLogin(GaiaTestCase):
         settings = self.marketplace.tap_settings()
         persona = settings.tap_sign_in()
 
-        persona.login(self.testvars['marketplace']['username'], self.testvars['marketplace']['password'])
+        persona.login(self.user.email, self.user.password)
 
         # switch back to Marketplace
         self.marionette.switch_to_frame()
         self.marketplace.launch()
 
-        # tap on the signed-in notification at the bottom of the screen to dismiss it
-        self.wait_for_element_displayed(*self._signed_in_notification_locator)
-        self.marionette.tap(self.marionette.find_element(*self._signed_in_notification_locator))
-
-        settings.wait_for_sign_out_button()
+        # wait for signed-in notification at the bottom of the screen to clear
+        self.wait_for_element_not_displayed(*self._signed_in_notification_locator)
 
         # Verify that user is logged in
-        self.assertEqual(self.testvars['marketplace']['username'], settings.email)
+        self.assertEqual(self.user.email, settings.email)
 
         # Sign out, which should return to the Marketplace home screen
         settings.tap_sign_out()

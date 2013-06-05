@@ -396,10 +396,11 @@ var GaiaDataLayer = {
       req.onsuccess = function() {
         var file = req.result;
         if (file) {
-          if (aType === 'music' && file.name.slice(0, 5) === 'DCIM/' && file.name.slice(-4) === '.3gp') {
+          if (aType === 'music' && file.name.slice(0, 13) === '/sdcard/DCIM/' && file.name.slice(-4) === '.3gp') {
             req.continue();
           }
           else {
+            // File.name returns a fully qualified path
             media.push(file.name);
             req.continue();
           }
@@ -433,7 +434,7 @@ var GaiaDataLayer = {
     let request = sms.getMessages(filter, false);
 
     request.onsuccess = function(event) {
-      cursor = event.target.result;
+      var cursor = event.target.result;
       // Check if message was found
       if (cursor && cursor.message) {
         msgList.push(cursor.message.id);

@@ -16,9 +16,9 @@ class TestEverythingMe(GaiaTestCase):
     _homescreen_frame_locator = ('css selector', 'div.homescreen > iframe')
     _homescreen_landing_locator = ('id', 'landing-page')
 
-    # Facebook app locator
-    _facebook_iframe_locator = ('css selector', "iframe[data-url*='http://touch.facebook.com/']")
-    _facebook_app_locator = ('xpath', "//li[@data-name='Facebook']")
+    # Twitter app locator
+    _twitter_iframe_locator = ('css selector', "iframe[data-url*='twitter.com']")
+    _twitter_app_locator = ('xpath', "//li[@data-name='Twitter']")
 
     def setUp(self):
         GaiaTestCase.setUp(self)
@@ -39,7 +39,7 @@ class TestEverythingMe(GaiaTestCase):
         self.marionette.execute_script("window.wrappedJSObject.GridManager.goToPreviousPage();")
 
         # Check for the available application shortcut categories
-        self.wait_for_element_present(*self._shortcut_items_locator)
+        self.wait_for_element_displayed(*self._shortcut_items_locator)
 
         # Check that there are shortcut application categories available
         shortcuts = self.marionette.find_elements(*self._shortcut_items_locator)
@@ -47,22 +47,22 @@ class TestEverythingMe(GaiaTestCase):
 
         # Tap on the 'Social' category
         social = self.marionette.find_element(*self._social_category_locator)
-        self.marionette.tap(social)
+        social.tap()
 
         self.wait_for_element_displayed(*self._app_icon_locator)
 
-        # Tap the available Facebook application shortcut
-        app = self.marionette.find_element(*self._facebook_app_locator)
-        self.marionette.tap(app)
+        # Tap the available Twitter application shortcut
+        app = self.marionette.find_element(*self._twitter_app_locator)
+        app.tap()
 
-        # Switch to top level frame then look for the Facebook app
+        # Switch to top level frame then look for the Twitter app
         self.marionette.switch_to_frame()
 
         # Find the frame and switch to it
-        app_iframe = self.wait_for_element_present(*self._facebook_iframe_locator)
+        app_iframe = self.wait_for_element_present(*self._twitter_iframe_locator)
         self.marionette.switch_to_frame(app_iframe)
 
-        self.assertIn("Facebook", self.marionette.title)
+        self.assertIn("Twitter", self.marionette.title)
 
     def tearDown(self):
         # This will take us back to Everything.Me 'Social' category, from whence cleanUp can return to the home page

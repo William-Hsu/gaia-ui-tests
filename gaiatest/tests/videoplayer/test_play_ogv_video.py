@@ -3,20 +3,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import time
-
 from gaiatest import GaiaTestCase
+from gaiatest.apps.videoplayer.app import VideoPlayer
 
 
 class TestPlayOgvVideo(GaiaTestCase):
-
-    # Video list/summary view
-    _video_items_locator = ('css selector', 'ul#thumbnails li[data-name]')
-    _video_name_locator = ('css selector', 'div.details')
-
-    # Video player fullscreen
-    _video_controls_locator = ('id', 'videoControls')
-    _video_title_locator = ('id', 'video-title')
-    _elapsed_text_locator = ('id', 'elapsed-text')
 
     def setUp(self):
         GaiaTestCase.setUp(self)
@@ -24,33 +15,30 @@ class TestPlayOgvVideo(GaiaTestCase):
         # add video to storage
         self.push_resource('VID_0001.ogv', destination='DCIM/100MZLLA')
 
-        # launch the Video app
-        self.app = self.apps.launch('Video')
-        self.wait_for_element_displayed(*self._video_items_locator)
-
     def test_play_ogv_video(self):
-        # https://moztrap.mozilla.org/manage/case/2478/
+        """https://moztrap.mozilla.org/manage/case/2478/"""
 
-        all_videos = self.marionette.find_elements(*self._video_items_locator)
+        video_player = VideoPlayer(self.marionette)
+        video_player.launch()
 
-        # Assert that there are more than one video available
-        self.assertGreater(all_videos, 0)
+        # Assert that there is at least one video available
+        self.assertGreater(video_player.total_video_count, 0)
 
-        first_video = all_videos[0]
-        first_video_name = first_video.find_element(*self._video_name_locator).get_attribute('data-raw')
+        first_video_name = video_player.first_video_name
 
-        # click on the first video
-        self.marionette.tap(first_video)
+        # Click on the first video
+        fullscreen_video = video_player.tap_first_video_item()
 
         # Video will play automatically
-        # Tap on the toolbar to keep it visible
-        self.wait_for_element_displayed(*self._video_controls_locator)
-        self.marionette.tap(self.marionette.find_element(*self._video_controls_locator))
-        self.wait_for_element_displayed(*self._elapsed_text_locator)
+        # We'll wait for the controls to clear so we're 'safe' to proceed
+        time.sleep(2)
 
-        # The elapsed time != 0:00 is the only indication of the toolbar visible
-        self.assertNotEqual(self.marionette.find_element(*self._elapsed_text_locator).text, "00:00")
+        # We cannot tap the toolbar so let's just enable it with javascript
+        fullscreen_video.display_controls_with_js()
+
+        # The elapsed time > 0:00 denote the video is playing
+        zero_time = time.strptime('00:00', '%M:%S')
+        self.assertGreater(fullscreen_video.elapsed_time, zero_time)
 
         # Check the name too. This will only work if the toolbar is visible
-        self.assertEqual(first_video_name,
-                         self.marionette.find_element(*self._video_title_locator).text)
+        self.assertEqual(first_video_name, fullscreen_video.name)

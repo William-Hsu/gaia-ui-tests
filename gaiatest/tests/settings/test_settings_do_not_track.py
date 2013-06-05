@@ -33,7 +33,7 @@ class TestSettingsDoNotTrack(GaiaTestCase):
         # see https://bugzilla.mozilla.org/show_bug.cgi?id=833370
         self.marionette.execute_script('arguments[0].scrollIntoView(false);',
                                        [donottrack_menu_item])
-        self.marionette.tap(donottrack_menu_item)
+        donottrack_menu_item.tap()
 
         # locate the Do Not Track label and checkbox
         self.wait_for_element_displayed(*self._donottrack_label_locator)
@@ -41,19 +41,25 @@ class TestSettingsDoNotTrack(GaiaTestCase):
         donottrack_checkbox = self.marionette.find_element(*self._donottrack_checkbox_locator)
 
         # turned off by default
-        self.wait_for_condition(lambda m: donottrack_checkbox.get_attribute('checked') is None)
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._donottrack_checkbox_locator).get_attribute('checked') is None
+        )
 
         # turn on - tap on the label
-        self.marionette.tap(donottrack_label)
-        self.wait_for_condition(lambda m: donottrack_checkbox.get_attribute('checked'))
+        donottrack_label.tap()
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._donottrack_checkbox_locator).get_attribute('checked')
+        )
 
         # should be on
         self.assertTrue(self.data_layer.get_setting('privacy.donottrackheader.enabled'),
                         'Do Not Track was not enabled via Settings app')
 
         # turn back off
-        self.marionette.tap(donottrack_label)
-        self.wait_for_condition(lambda m: donottrack_checkbox.get_attribute('checked') is None)
+        donottrack_label.tap()
+        self.wait_for_condition(
+            lambda m: m.find_element(*self._donottrack_checkbox_locator).get_attribute('checked') is None
+        )
 
         # should be off
         self.assertFalse(self.data_layer.get_setting('privacy.donottrackheader.enabled'),
